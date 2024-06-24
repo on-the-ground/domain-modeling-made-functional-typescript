@@ -1,0 +1,27 @@
+{
+  "name": "dmmf-ts",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "typescript": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/on-the-ground/dmmf-ts.git"
+  },
+  "keywords": [
+    "DomainModelingMadeFunctional",
+    "Typescript"
+  ],
+  "author": "Joohyung Park",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/on-the-ground/dmmf-ts/issues"
+  },
+  "homepage": "https://github.com/on-the-ground/dmmf-ts#readme",
+  "description": "",
+  "devDependencies": {
+    "typescript": "^5.5.2"
+  }
+}
