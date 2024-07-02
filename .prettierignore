@@ -1,8 +1,6 @@
 # compiled output
 /dist
 /node_modules
-/.husky
-/test-suites
 
 # Logs
 logs
@@ -27,8 +25,6 @@ lerna-debug.log*
 *.launch
 .settings/
 *.sublime-workspace
-/.run
-/.helix
 
 # IDE - VSCode
 .vscode/*
@@ -39,13 +35,4 @@ lerna-debug.log*
 
 # GraphQL
 schema.graphql
-registry.graphql
-.graphqlconfig
 
-# Envs
-.env
-
-/data
-
-package-lock.json
-yarn.lock
