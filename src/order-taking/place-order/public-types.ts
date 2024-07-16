@@ -16,38 +16,38 @@ import type * as Common from '../common-types';
 
 export class UnvalidatedCustomerInfo {
   constructor(
-    readonly FirstName: string,
-    readonly LastName: string,
-    readonly EmailAddress: string,
+    readonly firstName: string,
+    readonly lastName: string,
+    readonly emailAddress: string,
   ) {}
 }
 
 export class UnvalidatedAddress {
   constructor(
-    readonly AddressLine1: string,
-    readonly AddressLine2: string,
-    readonly AddressLine3: string,
-    readonly AddressLine4: string,
-    readonly City: string,
-    readonly ZipCode: string,
+    readonly addressLine1: string,
+    readonly city: string,
+    readonly zipCode: string,
+    readonly addressLine2?: string,
+    readonly addressLine3?: string,
+    readonly addressLine4?: string,
   ) {}
 }
 
 export class UnvalidatedOrderLine {
   constructor(
-    readonly OrderLineId: string,
-    readonly ProductCode: string,
-    readonly Quantity: number,
+    readonly orderLineId: string,
+    readonly productCode: string,
+    readonly quantity: number,
   ) {}
 }
 
 export class UnvalidatedOrder {
   constructor(
-    readonly OrderId: string,
-    readonly CustomerInfo: UnvalidatedCustomerInfo,
-    readonly ShippingAddress: UnvalidatedAddress,
-    readonly BillingAddress: UnvalidatedAddress,
-    readonly Lines: UnvalidatedOrderLine[],
+    readonly orderId: string,
+    readonly customerInfo: UnvalidatedCustomerInfo,
+    readonly shippingAddress: UnvalidatedAddress,
+    readonly billingAddress: UnvalidatedAddress,
+    readonly lines: UnvalidatedOrderLine[],
   ) {}
 }
 
@@ -57,41 +57,41 @@ export class UnvalidatedOrder {
 /// Event will be created if the Acknowledgment was successfully posted
 export class OrderAcknowledgmentSent {
   constructor(
-    readonly OrderId: Common.OrderId,
-    readonly EmailAddress: Common.EmailAddress,
+    readonly orderId: Common.OrderId,
+    readonly emailAddress: Common.EmailAddress,
   ) {}
 }
 
 // priced state
 export class PricedOrderLine {
   constructor(
-    readonly OrderLineId: Common.OrderLineId,
-    readonly ProductCode: Common.ProductCode,
-    readonly Quantity: Common.OrderQuantity,
-    readonly LinePrice: Common.Price,
+    readonly orderLineId: Common.OrderLineId,
+    readonly productCode: Common.ProductCode,
+    readonly quantity: Common.OrderQuantity,
+    readonly linePrice: Common.Price,
   ) {}
 }
 
 export class PricedOrder {
   constructor(
-    readonly OrderId: Common.OrderId,
-    readonly CustomerInfo: Common.CustomerInfo,
-    readonly ShippingAddress: Common.Address,
-    readonly BillingAddress: Common.Address,
-    readonly AmountToBill: Common.BillingAmount,
-    readonly Lines: readonly PricedOrderLine[],
+    readonly orderId: Common.OrderId,
+    readonly customerInfo: Common.CustomerInfo,
+    readonly shippingAddress: Common.Address,
+    readonly billingAddress: Common.Address,
+    readonly amountToBill: Common.BillingAmount,
+    readonly lines: readonly PricedOrderLine[],
   ) {}
 }
 
 /// Event to send to shipping context
 export class OrderPlaced {
   constructor(
-    readonly OrderId: Common.OrderId,
-    readonly CustomerInfo: Common.CustomerInfo,
-    readonly ShippingAddress: Common.Address,
-    readonly BillingAddress: Common.Address,
-    readonly AmountToBill: Common.BillingAmount,
-    readonly Lines: readonly PricedOrderLine[],
+    readonly orderId: Common.OrderId,
+    readonly customerInfo: Common.CustomerInfo,
+    readonly shippingAddress: Common.Address,
+    readonly billingAddress: Common.Address,
+    readonly amountToBill: Common.BillingAmount,
+    readonly lines: readonly PricedOrderLine[],
   ) {}
 }
 
@@ -99,9 +99,9 @@ export class OrderPlaced {
 /// Will only be created if the AmountToBill is not zero
 export class BillableOrderPlaced {
   constructor(
-    readonly OrderId: Common.OrderId,
-    readonly BillingAddress: Common.Address,
-    readonly AmountToBill: Common.BillingAmount,
+    readonly orderId: Common.OrderId,
+    readonly billingAddress: Common.Address,
+    readonly amountToBill: Common.BillingAmount,
   ) {}
 }
 
@@ -115,25 +115,25 @@ export type PlaceOrderEvent = OrderPlaced | BillableOrderPlaced | OrderAcknowled
 /// All the things that can go wrong in this workflow
 export class ValidationError {
   readonly [Symbol.validationError]: never;
-  constructor(readonly msg: string) {}
+  constructor(readonly message: string) {}
 }
 
 export class PricingError {
   readonly [Symbol.pricingError]: never;
-  constructor(readonly msg: string) {}
+  constructor(readonly message: string) {}
 }
 
 export class ServiceInfo {
   constructor(
-    readonly Name: string,
-    readonly Endpoint: URL,
+    readonly name: string,
+    readonly endpoint: URL,
   ) {}
 }
 
 export class RemoteServiceError {
   constructor(
-    readonly Service: ServiceInfo,
-    readonly Exception: Error,
+    readonly service: ServiceInfo,
+    readonly exception: Error,
   ) {}
 }
 

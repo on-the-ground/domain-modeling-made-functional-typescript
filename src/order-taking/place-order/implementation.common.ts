@@ -18,11 +18,11 @@ import type { PricedOrder, PlaceOrderEvent } from './public-types';
 
 export const acknowledgeOrder: AcknowledgeOrder = (createAcknowledgmentLetter, sendAcknowledgment) => (pricedOrder) => {
   const letter = createAcknowledgmentLetter(pricedOrder);
-  const acknowledgment = new OrderAcknowledgment(pricedOrder.CustomerInfo.emailAddress, letter);
+  const acknowledgment = new OrderAcknowledgment(pricedOrder.customerInfo.emailAddress, letter);
   // if the acknowledgement was successfully sent,
   // return the corresponding event, else return None
   return match(sendAcknowledgment(acknowledgment))
-    .with(Sent, () => O.some(new OrderAcknowledgmentSent(pricedOrder.OrderId, pricedOrder.CustomerInfo.emailAddress)))
+    .with(Sent, () => O.some(new OrderAcknowledgmentSent(pricedOrder.orderId, pricedOrder.customerInfo.emailAddress)))
     .with(NotSent, () => O.none)
     .exhaustive();
 };
@@ -32,11 +32,11 @@ export const acknowledgeOrder: AcknowledgeOrder = (createAcknowledgmentLetter, s
 // ---------------------------
 
 export const createOrderPlacedEvent = (i: PricedOrder) =>
-  new OrderPlaced(i.OrderId, i.CustomerInfo, i.ShippingAddress, i.BillingAddress, i.AmountToBill, i.Lines);
+  new OrderPlaced(i.orderId, i.customerInfo, i.shippingAddress, i.billingAddress, i.amountToBill, i.lines);
 
 export const createBillingEvent = (placedOrder: PricedOrder): O.Option<BillableOrderPlaced> => {
-  return placedOrder.AmountToBill.value > 0
-    ? O.some(new BillableOrderPlaced(placedOrder.OrderId, placedOrder.BillingAddress, placedOrder.AmountToBill))
+  return placedOrder.amountToBill.value > 0
+    ? O.some(new BillableOrderPlaced(placedOrder.orderId, placedOrder.billingAddress, placedOrder.amountToBill))
     : O.none;
 };
 
@@ -50,18 +50,18 @@ export const createEvents: CreateEvents = (pricedOrder, acknowledgmentEventOpt) 
   // return all the events
   ...pipe(
     acknowledgmentEventOpt,
-    O.map((i) => new OrderAcknowledgmentSent(i.OrderId, i.EmailAddress)),
+    O.map((i) => new OrderAcknowledgmentSent(i.orderId, i.emailAddress)),
     listOfOption,
   ),
   pipe(
     pricedOrder,
     createOrderPlacedEvent,
-    (e) => new OrderPlaced(e.OrderId, e.CustomerInfo, e.ShippingAddress, e.BillingAddress, e.AmountToBill, e.Lines),
+    (e) => new OrderPlaced(e.orderId, e.customerInfo, e.shippingAddress, e.billingAddress, e.amountToBill, e.lines),
   ),
   ...pipe(
     pricedOrder,
     createBillingEvent,
-    O.map((e) => new BillableOrderPlaced(e.OrderId, e.BillingAddress, e.AmountToBill)),
+    O.map((e) => new BillableOrderPlaced(e.orderId, e.billingAddress, e.amountToBill)),
     listOfOption,
   ),
 ];

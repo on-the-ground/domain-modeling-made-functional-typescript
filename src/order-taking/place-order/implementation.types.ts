@@ -28,19 +28,19 @@ export const CheckedAddress = (i: UnvalidatedAddress) => i as CheckedAddress;
 
 export class ValidatedOrderLine {
   constructor(
-    readonly OrderLineId: Common.OrderLineId,
-    readonly ProductCode: Common.ProductCode,
-    readonly Quantity: Common.OrderQuantity,
+    readonly orderLineId: Common.OrderLineId,
+    readonly productCode: Common.ProductCode,
+    readonly quantity: Common.OrderQuantity,
   ) {}
 }
 
 export class ValidatedOrder {
   constructor(
-    readonly OrderId: Common.OrderId,
-    readonly CustomerInfo: Common.CustomerInfo,
-    readonly ShippingAddress: Common.Address,
-    readonly BillingAddress: Common.Address,
-    readonly Lines: readonly ValidatedOrderLine[],
+    readonly orderId: Common.OrderId,
+    readonly customerInfo: Common.CustomerInfo,
+    readonly shippingAddress: Common.Address,
+    readonly billingAddress: Common.Address,
+    readonly lines: readonly ValidatedOrderLine[],
   ) {}
 }
 
@@ -59,8 +59,8 @@ export const HtmlString = (i: string) => i as HtmlString;
 
 export class OrderAcknowledgment {
   constructor(
-    readonly EmailAddress: Common.EmailAddress,
-    readonly Letter: HtmlString,
+    readonly emailAddress: Common.EmailAddress,
+    readonly letter: HtmlString,
   ) {}
 }
 

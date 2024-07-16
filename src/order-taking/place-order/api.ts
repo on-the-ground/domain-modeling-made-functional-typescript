@@ -28,17 +28,17 @@ type JsonString = string;
 /// Very simplified version!
 class HttpRequest {
   constructor(
-    readonly Action: string,
-    readonly Uri: string,
-    readonly Body: JsonString,
+    readonly action: string,
+    readonly uri: string,
+    readonly body: JsonString,
   ) {}
 }
 
 /// Very simplified version!
 class HttpResponse {
   constructor(
-    readonly HttpStatusCode: number,
-    readonly Body: JsonString,
+    readonly httpStatusCode: number,
+    readonly body: JsonString,
   ) {}
 }
 
@@ -78,7 +78,7 @@ export const placeOrderApi: PlaceOrderApi = (request: HttpRequest) => {
   // following the approach in "A Complete Serialization Pipeline" in chapter 11
 
   // start with a string
-  const orderFormJson = request.Body;
+  const orderFormJson = request.body;
   const orderForm: OrderFormDto = pipe(orderFormJson, JSON.parse, (obj) =>
     Object.setPrototypeOf(obj, OrderFormDto.prototype),
   );

@@ -33,12 +33,12 @@ export class CustomerInfo {
 
 export class Address {
   constructor(
-    readonly AddressLine1: String50,
-    readonly AddressLine2: Option<String50>,
-    readonly AddressLine3: Option<String50>,
-    readonly AddressLine4: Option<String50>,
-    readonly City: String50,
-    readonly ZipCode: ZipCode,
+    readonly addressLine1: String50,
+    readonly addressLine2: Option<String50>,
+    readonly addressLine3: Option<String50>,
+    readonly addressLine4: Option<String50>,
+    readonly city: String50,
+    readonly zipCode: ZipCode,
   ) {}
 }
 

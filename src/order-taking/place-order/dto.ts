@@ -39,9 +39,9 @@ import {
 
 export class CustomerInfoDto {
   constructor(
-    readonly FirstName: string,
-    readonly LastName: string,
-    readonly EmailAddress: string,
+    readonly firstName: string,
+    readonly lastName: string,
+    readonly emailAddress: string,
   ) {}
   /// Convert the DTO into a UnvalidatedCustomerInfo object.
   /// This always succeeds because there is no validation.
@@ -51,7 +51,7 @@ export class CustomerInfoDto {
     // to avoid ambiguity between records with the same field names.
 
     // this is a simple 1:1 copy which always succeeds
-    return new UnvalidatedCustomerInfo(dto.FirstName, dto.LastName, dto.EmailAddress);
+    return new UnvalidatedCustomerInfo(dto.firstName, dto.lastName, dto.emailAddress);
   }
 
   /// Convert the DTO into a CustomerInfo object
@@ -60,9 +60,9 @@ export class CustomerInfoDto {
     return pipe(
       E.Do,
       // get each (validated) simple type from the DTO as a success or failure
-      E.bind('first', () => Common.String50.create('FirstName')(dto.FirstName)),
-      E.bind('last', () => Common.String50.create('LastName')(dto.LastName)),
-      E.bind('email', () => Common.EmailAddress.create('EmailAddress')(dto.EmailAddress)),
+      E.bind('first', () => Common.String50.create('firstName')(dto.firstName)),
+      E.bind('last', () => Common.String50.create('lastName')(dto.lastName)),
+      E.bind('email', () => Common.EmailAddress.create('emailAddress')(dto.emailAddress)),
       // combine the components to create the domain object
       E.bind('name', ({ first, last }) => E.right(new Common.PersonalName(first, last))),
       E.map(({ name, email }) => new Common.CustomerInfo(name, email)),
@@ -87,12 +87,12 @@ export class CustomerInfoDto {
 
 export class AddressDto {
   constructor(
-    readonly AddressLine1: string,
-    readonly City: string,
-    readonly ZipCode: string,
-    readonly AddressLine2?: string,
-    readonly AddressLine3?: string,
-    readonly AddressLine4?: string,
+    readonly addressLine1: string,
+    readonly city: string,
+    readonly zipCode: string,
+    readonly addressLine2?: string,
+    readonly addressLine3?: string,
+    readonly addressLine4?: string,
   ) {}
 
   /// Convert the DTO into a UnvalidatedAddress
@@ -101,12 +101,12 @@ export class AddressDto {
   static toUnvalidatedAddress(dto: AddressDto): UnvalidatedAddress {
     // this is a simple 1:1 copy
     return new UnvalidatedAddress(
-      dto.AddressLine1,
-      dto.AddressLine2,
-      dto.AddressLine3,
-      dto.AddressLine4,
-      dto.City,
-      dto.ZipCode,
+      dto.addressLine1,
+      dto.city,
+      dto.zipCode,
+      dto.addressLine2,
+      dto.addressLine3,
+      dto.addressLine4,
     );
   }
 
@@ -116,12 +116,12 @@ export class AddressDto {
     return pipe(
       E.Do,
       // get each (validated) simple type from the DTO as a success or failure
-      E.bind('addressLine1', () => Common.String50.create('AddressLine1')(dto.AddressLine1)),
-      E.bind('addressLine2', () => Common.String50.createOption('AddressLine2')(dto.AddressLine2)),
-      E.bind('addressLine3', () => Common.String50.createOption('AddressLine3')(dto.AddressLine3)),
-      E.bind('addressLine4', () => Common.String50.createOption('AddressLine4')(dto.AddressLine4)),
-      E.bind('city', () => Common.String50.create('City')(dto.City)),
-      E.bind('zipCode', () => Common.ZipCode.create('ZipCode')(dto.ZipCode)),
+      E.bind('addressLine1', () => Common.String50.create('addressLine1')(dto.addressLine1)),
+      E.bind('addressLine2', () => Common.String50.createOption('addressLine2')(dto.addressLine2)),
+      E.bind('addressLine3', () => Common.String50.createOption('addressLine3')(dto.addressLine3)),
+      E.bind('addressLine4', () => Common.String50.createOption('addressLine4')(dto.addressLine4)),
+      E.bind('city', () => Common.String50.create('city')(dto.city)),
+      E.bind('zipCode', () => Common.ZipCode.create('zipCode')(dto.zipCode)),
       // combine the components to create the domain object
       E.map(
         (i) => new Common.Address(i.addressLine1, i.addressLine2, i.addressLine3, i.addressLine4, i.city, i.zipCode),
@@ -134,21 +134,21 @@ export class AddressDto {
   static fromAddress(domainObj: Common.Address): AddressDto {
     // this is a simple 1:1 copy
     return new AddressDto(
-      domainObj.AddressLine1.value,
-      domainObj.City.value,
-      domainObj.ZipCode.value,
+      domainObj.addressLine1.value,
+      domainObj.city.value,
+      domainObj.zipCode.value,
       pipe(
-        domainObj.AddressLine2,
+        domainObj.addressLine2,
         O.map((i) => i.value),
         O.toNullable,
       ),
       pipe(
-        domainObj.AddressLine3,
+        domainObj.addressLine3,
         O.map((i) => i.value),
         O.toNullable,
       ),
       pipe(
-        domainObj.AddressLine4,
+        domainObj.addressLine4,
         O.map((i) => i.value),
         O.toNullable,
       ),
@@ -163,9 +163,9 @@ export class AddressDto {
 /// From the order form used as input
 export class OrderFormLineDto {
   constructor(
-    readonly OrderLineId: string,
-    readonly ProductCode: string,
-    readonly Quantity: number,
+    readonly orderLineId: string,
+    readonly productCode: string,
+    readonly quantity: number,
   ) {}
 
   /// Convert the OrderFormLine into a UnvalidatedOrderLine
@@ -173,7 +173,7 @@ export class OrderFormLineDto {
   /// Used when importing an OrderForm from the outside world into the domain.
   static toUnvalidatedOrderLine(dto: OrderFormLineDto): UnvalidatedOrderLine {
     // this is a simple 1:1 copy
-    return new UnvalidatedOrderLine(dto.OrderLineId, dto.ProductCode, dto.Quantity);
+    return new UnvalidatedOrderLine(dto.orderLineId, dto.productCode, dto.quantity);
   }
 }
 
@@ -184,10 +184,10 @@ export class OrderFormLineDto {
 /// Used in the output of the workflow
 export class PricedOrderLineDto {
   constructor(
-    readonly OrderLineId: string,
-    readonly ProductCode: string,
-    readonly Quantity: number,
-    readonly LinePrice: number,
+    readonly orderLineId: string,
+    readonly productCode: string,
+    readonly quantity: number,
+    readonly linePrice: number,
   ) {}
 
   /// Convert a PricedOrderLine object into the corresponding DTO.
@@ -195,10 +195,10 @@ export class PricedOrderLineDto {
   static fromDomain(domainObj: PricedOrderLine): PricedOrderLineDto {
     // this is a simple 1:1 copy
     return new PricedOrderLineDto(
-      domainObj.OrderLineId.value,
-      domainObj.ProductCode.value,
-      domainObj.Quantity.value,
-      domainObj.LinePrice.value,
+      domainObj.orderLineId.value,
+      domainObj.productCode.value,
+      domainObj.quantity.value,
+      domainObj.linePrice.value,
     );
   }
 }
@@ -209,22 +209,22 @@ export class PricedOrderLineDto {
 
 export class OrderFormDto {
   constructor(
-    readonly OrderId: string,
-    readonly CustomerInfo: CustomerInfoDto,
-    readonly ShippingAddress: AddressDto,
-    readonly BillingAddress: AddressDto,
-    readonly Lines: OrderFormLineDto[],
+    readonly orderId: string,
+    readonly customerInfo: CustomerInfoDto,
+    readonly shippingAddress: AddressDto,
+    readonly billingAddress: AddressDto,
+    readonly lines: OrderFormLineDto[],
   ) {}
 
   /// Convert the OrderForm into a UnvalidatedOrder
   /// This always succeeds because there is no validation.
   static toUnvalidatedOrder(dto: OrderFormDto): UnvalidatedOrder {
     return new UnvalidatedOrder(
-      dto.OrderId,
-      CustomerInfoDto.toUnvalidatedCustomerInfo(dto.CustomerInfo),
-      AddressDto.toUnvalidatedAddress(dto.ShippingAddress),
-      AddressDto.toUnvalidatedAddress(dto.BillingAddress),
-      pipe(dto.Lines, A.map(OrderFormLineDto.toUnvalidatedOrderLine)),
+      dto.orderId,
+      CustomerInfoDto.toUnvalidatedCustomerInfo(dto.customerInfo),
+      AddressDto.toUnvalidatedAddress(dto.shippingAddress),
+      AddressDto.toUnvalidatedAddress(dto.billingAddress),
+      pipe(dto.lines, A.map(OrderFormLineDto.toUnvalidatedOrderLine)),
     );
   }
 }
@@ -236,24 +236,24 @@ export class OrderFormDto {
 /// Event to send to shipping context
 export class OrderPlacedDto {
   constructor(
-    readonly OrderId: string,
-    readonly CustomerInfo: CustomerInfoDto,
-    readonly ShippingAddress: AddressDto,
-    readonly BillingAddress: AddressDto,
-    readonly AmountToBill: number,
-    readonly Lines: PricedOrderLineDto[],
+    readonly orderId: string,
+    readonly customerInfo: CustomerInfoDto,
+    readonly shippingAddress: AddressDto,
+    readonly billingAddress: AddressDto,
+    readonly amountToBill: number,
+    readonly lines: PricedOrderLineDto[],
   ) {}
 
   /// Convert a OrderPlaced object into the corresponding DTO.
   /// Used when exporting from the domain to the outside world.
   static fromDomain(domainObj: OrderPlaced): OrderPlacedDto {
     return new OrderPlacedDto(
-      domainObj.OrderId.value,
-      CustomerInfoDto.fromCustomerInfo(domainObj.CustomerInfo),
-      AddressDto.fromAddress(domainObj.ShippingAddress),
-      AddressDto.fromAddress(domainObj.BillingAddress),
-      domainObj.AmountToBill.value,
-      pipe(domainObj.Lines, A.map(PricedOrderLineDto.fromDomain)),
+      domainObj.orderId.value,
+      CustomerInfoDto.fromCustomerInfo(domainObj.customerInfo),
+      AddressDto.fromAddress(domainObj.shippingAddress),
+      AddressDto.fromAddress(domainObj.billingAddress),
+      domainObj.amountToBill.value,
+      pipe(domainObj.lines, A.map(PricedOrderLineDto.fromDomain)),
     );
   }
 }
@@ -265,18 +265,18 @@ export class OrderPlacedDto {
 /// Event to send to billing context
 export class BillableOrderPlacedDto {
   constructor(
-    readonly OrderId: string,
-    readonly BillingAddress: AddressDto,
-    readonly AmountToBill: number,
+    readonly orderId: string,
+    readonly billingAddress: AddressDto,
+    readonly amountToBill: number,
   ) {}
 
   /// Convert a BillableOrderPlaced object into the corresponding DTO.
   /// Used when exporting from the domain to the outside world.
   static fromDomain(domainObj: BillableOrderPlaced): BillableOrderPlacedDto {
     return new BillableOrderPlacedDto(
-      domainObj.OrderId.value,
-      AddressDto.fromAddress(domainObj.BillingAddress),
-      domainObj.AmountToBill.value,
+      domainObj.orderId.value,
+      AddressDto.fromAddress(domainObj.billingAddress),
+      domainObj.amountToBill.value,
     );
   }
 }
@@ -288,14 +288,14 @@ export class BillableOrderPlacedDto {
 /// Event to send to other bounded contexts
 export class OrderAcknowledgmentSentDto {
   constructor(
-    readonly OrderId: string,
-    readonly EmailAddress: string,
+    readonly orderId: string,
+    readonly emailAddress: string,
   ) {}
 
   /// Convert a OrderAcknowledgmentSent object into the corresponding DTO.
   /// Used when exporting from the domain to the outside world.
   static fromDomain(domainObj: OrderAcknowledgmentSent): OrderAcknowledgmentSentDto {
-    return new OrderAcknowledgmentSentDto(domainObj.OrderId.value, domainObj.EmailAddress.value);
+    return new OrderAcknowledgmentSentDto(domainObj.orderId.value, domainObj.emailAddress.value);
   }
 }
 
@@ -331,17 +331,17 @@ export const placeOrderEventDtoFromDomain = (domainObj: PlaceOrderEvent): PlaceO
 
 export class PlaceOrderErrorDto {
   constructor(
-    readonly Code: string,
-    readonly Message: string,
+    readonly code: string,
+    readonly message: string,
   ) {}
 
   static fromDomain(domainObj: PlaceOrderError): PlaceOrderErrorDto {
     return match(domainObj)
-      .with(P.instanceOf(ValidationError), (err) => new PlaceOrderErrorDto('ValidationError', err.msg))
-      .with(P.instanceOf(PricingError), (err) => new PlaceOrderErrorDto('PricingError', err.msg))
+      .with(P.instanceOf(ValidationError), (err) => new PlaceOrderErrorDto('ValidationError', err.message))
+      .with(P.instanceOf(PricingError), (err) => new PlaceOrderErrorDto('PricingError', err.message))
       .with(
         P.instanceOf(RemoteServiceError),
-        (err) => new PlaceOrderErrorDto('RemoveServiceError', `${err.Service.Name}: ${err.Exception.message}`),
+        (err) => new PlaceOrderErrorDto('RemoveServiceError', `${err.service.name}: ${err.exception.message}`),
       )
       .exhaustive();
   }

@@ -46,10 +46,10 @@ import type {
 // Product validation
 
 class InvalidFormat {
-  constructor(readonly msg: string) {}
+  constructor(readonly message: string) {}
 }
 class AddressNotFound {
-  constructor(readonly msg: string) {}
+  constructor(readonly message: string) {}
 }
 
 // Address validation
@@ -91,22 +91,22 @@ const toCustomerInfo = (
     E.Do,
     E.bind('firstName', () =>
       pipe(
-        unvalidatedCustomerInfo.FirstName,
-        Common.String50.create('FirstName'),
+        unvalidatedCustomerInfo.firstName,
+        Common.String50.create('firstName'),
         E.mapLeft((e) => new ValidationError(e)),
       ),
     ),
     E.bind('lastName', () =>
       pipe(
-        unvalidatedCustomerInfo.LastName,
-        Common.String50.create('LastName'),
+        unvalidatedCustomerInfo.lastName,
+        Common.String50.create('lastName'),
         E.mapLeft((e) => new ValidationError(e)),
       ),
     ),
     E.bind('emailAddress', () =>
       pipe(
-        unvalidatedCustomerInfo.EmailAddress,
-        Common.EmailAddress.create('EmailAddress'),
+        unvalidatedCustomerInfo.emailAddress,
+        Common.EmailAddress.create('emailAddress'),
         E.mapLeft((e) => new ValidationError(e)),
       ),
     ),
@@ -119,43 +119,43 @@ const toAddress = (checkedAddress: CheckedAddress): E.Either<ValidationError, Co
     E.Do,
     E.bind('addressLine1', () =>
       pipe(
-        checkedAddress.AddressLine1,
-        Common.String50.create('AddressLine1'),
+        checkedAddress.addressLine1,
+        Common.String50.create('addressLine1'),
         E.mapLeft((e) => new ValidationError(e)),
       ),
     ),
     E.bind('addressLine2', () =>
       pipe(
-        checkedAddress.AddressLine2,
-        Common.String50.createOption('AddressLine2'),
+        checkedAddress.addressLine2,
+        Common.String50.createOption('addressLine2'),
         E.mapLeft((e) => new ValidationError(e)),
       ),
     ),
     E.bind('addressLine3', () =>
       pipe(
-        checkedAddress.AddressLine3,
-        Common.String50.createOption('AddressLine3'),
+        checkedAddress.addressLine3,
+        Common.String50.createOption('addressLine3'),
         E.mapLeft((e) => new ValidationError(e)),
       ),
     ),
     E.bind('addressLine4', () =>
       pipe(
-        checkedAddress.AddressLine4,
-        Common.String50.createOption('AddressLine4'),
+        checkedAddress.addressLine4,
+        Common.String50.createOption('addressLine4'),
         E.mapLeft((e) => new ValidationError(e)),
       ),
     ),
     E.bind('city', () =>
       pipe(
-        checkedAddress.City,
-        Common.String50.create('City'),
+        checkedAddress.city,
+        Common.String50.create('city'),
         E.mapLeft((e) => new ValidationError(e)),
       ),
     ),
     E.bind('zipCode', () =>
       pipe(
-        checkedAddress.ZipCode,
-        Common.ZipCode.create('ZipCode'),
+        checkedAddress.zipCode,
+        Common.ZipCode.create('zipCode'),
         E.mapLeft((e) => new ValidationError(e)),
       ),
     ),
@@ -177,13 +177,13 @@ const toCheckedAddress = (
   );
 
 const toOrderId: (orderId: string) => E.Either<ValidationError, Common.OrderId> = flow(
-  Common.OrderId.create('OrderId'),
+  Common.OrderId.create('orderId'),
   E.mapLeft((e) => new ValidationError(e)), // convert creation error into ValidationError
 );
 
 /// Helper function for validateOrder
 const toOrderLineId: (orderLineId: string) => E.Either<ValidationError, Common.OrderLineId> = flow(
-  Common.OrderLineId.create('OrderLineId'),
+  Common.OrderLineId.create('orderLineId'),
   E.mapLeft((e) => new ValidationError(e)),
 );
 
@@ -198,7 +198,7 @@ const toProductCode = (checkProductCodeExists: CheckProductCodeExists) => {
 
   // assemble the pipeline
   return flow(
-    Common.createProductCode('ProductCode'),
+    Common.createProductCode('productCode'),
     E.mapLeft((e) => new ValidationError(e)),
     E.flatMap(checkProduct),
   );
@@ -207,7 +207,7 @@ const toProductCode = (checkProductCodeExists: CheckProductCodeExists) => {
 /// Helper function for validateOrder1
 const toOrderQuantity = (productCode: Common.ProductCode) =>
   flow(
-    Common.createOrderQuantity('OrderQuantity', productCode),
+    Common.createOrderQuantity('orderQuantity', productCode),
     E.mapLeft((e) => new ValidationError(e)),
   );
 
@@ -216,24 +216,24 @@ const toValidatedOrderLine =
   (checkProductCodeExists: CheckProductCodeExists) => (unvalidatedOrderLine: UnvalidatedOrderLine) =>
     pipe(
       E.Do,
-      E.bind('orderLineId', () => toOrderLineId(unvalidatedOrderLine.OrderLineId)),
-      E.bind('productCode', () => toProductCode(checkProductCodeExists)(unvalidatedOrderLine.ProductCode)),
-      E.bind('quantity', ({ productCode }) => toOrderQuantity(productCode)(unvalidatedOrderLine.Quantity)),
+      E.bind('orderLineId', () => toOrderLineId(unvalidatedOrderLine.orderLineId)),
+      E.bind('productCode', () => toProductCode(checkProductCodeExists)(unvalidatedOrderLine.productCode)),
+      E.bind('quantity', ({ productCode }) => toOrderQuantity(productCode)(unvalidatedOrderLine.quantity)),
       E.map((i) => new ValidatedOrderLine(i.orderLineId, i.productCode, i.quantity)),
     );
 
 const validateOrder: ValidateOrder = (checkProductCodeExists, checkAddressExists) => (unvalidated) =>
   pipe(
     E.Do,
-    E.bind('orderId', () => toOrderId(unvalidated.OrderId)),
-    E.bind('customerInfo', () => toCustomerInfo(unvalidated.CustomerInfo)),
+    E.bind('orderId', () => toOrderId(unvalidated.orderId)),
+    E.bind('customerInfo', () => toCustomerInfo(unvalidated.customerInfo)),
     E.bind('lines', () =>
-      pipe(unvalidated.Lines, A.map(toValidatedOrderLine(checkProductCodeExists)), E.sequenceArray),
+      pipe(unvalidated.lines, A.map(toValidatedOrderLine(checkProductCodeExists)), E.sequenceArray),
     ),
     TE.fromEither,
-    TE.bind('checkedShippingAddress', () => pipe(unvalidated.ShippingAddress, toCheckedAddress(checkAddressExists))),
+    TE.bind('checkedShippingAddress', () => pipe(unvalidated.shippingAddress, toCheckedAddress(checkAddressExists))),
     TE.bind('shippingAddress', ({ checkedShippingAddress }) => pipe(checkedShippingAddress, toAddress, TE.fromEither)),
-    TE.bind('checkedBillingAddress', () => pipe(unvalidated.BillingAddress, toCheckedAddress(checkAddressExists))),
+    TE.bind('checkedBillingAddress', () => pipe(unvalidated.billingAddress, toCheckedAddress(checkAddressExists))),
     TE.bind('billingAddress', ({ checkedBillingAddress }) => pipe(checkedBillingAddress, toAddress, TE.fromEither)),
     TE.map((i) => new ValidatedOrder(i.orderId, i.customerInfo, i.shippingAddress, i.billingAddress, i.lines)),
   );
@@ -243,8 +243,8 @@ const validateOrder: ValidateOrder = (checkProductCodeExists, checkAddressExists
 // ---------------------------
 
 const toPricedOrderLine = (getProductPrice: GetProductPrice) => (validatedOrderLine: ValidatedOrderLine) => {
-  const qty = validatedOrderLine.Quantity.value;
-  const price = getProductPrice(validatedOrderLine.ProductCode);
+  const qty = validatedOrderLine.quantity.value;
+  const price = getProductPrice(validatedOrderLine.productCode);
   return pipe(
     E.Do,
     E.bind('linePrice', () =>
@@ -257,9 +257,9 @@ const toPricedOrderLine = (getProductPrice: GetProductPrice) => (validatedOrderL
     E.map(
       (i) =>
         new PricedOrderLine(
-          validatedOrderLine.OrderLineId,
-          validatedOrderLine.ProductCode,
-          validatedOrderLine.Quantity,
+          validatedOrderLine.orderLineId,
+          validatedOrderLine.productCode,
+          validatedOrderLine.quantity,
           i.linePrice,
         ),
     ),
@@ -271,7 +271,7 @@ const priceOrder: PriceOrder = (getProductPrice) => (validatedOrder) =>
     E.Do,
     E.bind('lines', () =>
       pipe(
-        validatedOrder.Lines,
+        validatedOrder.lines,
         A.map(toPricedOrderLine(getProductPrice)),
         E.sequenceArray, // convert list of Results to a single Result
       ),
@@ -279,7 +279,7 @@ const priceOrder: PriceOrder = (getProductPrice) => (validatedOrder) =>
     E.bind('amountToBill', ({ lines }) =>
       pipe(
         lines,
-        A.map((l: PricedOrderLine) => l.LinePrice), // get each line price
+        A.map((l: PricedOrderLine) => l.linePrice), // get each line price
         Common.BillingAmount.sumPrices, // add them together as a BillingAmount
         E.mapLeft((e) => new PricingError(e)), // convert to PlaceOrderError
       ),
@@ -287,10 +287,10 @@ const priceOrder: PriceOrder = (getProductPrice) => (validatedOrder) =>
     E.map(
       (i) =>
         new PricedOrder(
-          validatedOrder.OrderId,
-          validatedOrder.CustomerInfo,
-          validatedOrder.ShippingAddress,
-          validatedOrder.BillingAddress,
+          validatedOrder.orderId,
+          validatedOrder.customerInfo,
+          validatedOrder.shippingAddress,
+          validatedOrder.billingAddress,
           i.amountToBill,
           i.lines,
         ),

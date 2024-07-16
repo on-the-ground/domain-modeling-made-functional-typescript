@@ -151,32 +151,32 @@ type PriceOrder = (
 // ---------------------------
 
 const toCustomerInfo = (unvalidatedCustomerInfo: UnvalidatedCustomerInfo) => {
-  const firstName = String50.create('FirstName')(unvalidatedCustomerInfo.FirstName);
-  const lastName = String50.create('LastName')(unvalidatedCustomerInfo.LastName);
-  const emailAddress = EmailAddress.create('EmailAddress')(unvalidatedCustomerInfo.EmailAddress);
+  const firstName = String50.create('firstName')(unvalidatedCustomerInfo.firstName);
+  const lastName = String50.create('lastName')(unvalidatedCustomerInfo.lastName);
+  const emailAddress = EmailAddress.create('emailAddress')(unvalidatedCustomerInfo.emailAddress);
   return new Common.CustomerInfo(new Common.PersonalName(firstName, lastName), emailAddress);
 };
 
 const toAddress = (checkAddressExists: CheckAddressExists) => (unvalidatedAddress: UnvalidatedAddress) => {
   // call the remote service
   const checkedAddress = checkAddressExists(unvalidatedAddress);
-  const addressLine1 = String50.create('AddressLine1')(checkedAddress.AddressLine1);
-  const addressLine2 = String50.createOption('AddressLine2')(checkedAddress.AddressLine2);
-  const addressLine3 = String50.createOption('AddressLine3')(checkedAddress.AddressLine3);
-  const addressLine4 = String50.createOption('AddressLine4')(checkedAddress.AddressLine4);
-  const city = String50.create('City')(checkedAddress.City);
-  const zipCode = ZipCode.create('ZipCode')(checkedAddress.ZipCode);
+  const addressLine1 = String50.create('addressLine1')(checkedAddress.addressLine1);
+  const addressLine2 = String50.createOption('addressLine2')(checkedAddress.addressLine2);
+  const addressLine3 = String50.createOption('addressLine3')(checkedAddress.addressLine3);
+  const addressLine4 = String50.createOption('addressLine4')(checkedAddress.addressLine4);
+  const city = String50.create('city')(checkedAddress.city);
+  const zipCode = ZipCode.create('zipCode')(checkedAddress.zipCode);
   return new Common.Address(addressLine1, addressLine2, addressLine3, addressLine4, city, zipCode);
 };
 
 /// Function adapter to convert a predicate to a passthru
 const predicateToPassthru =
-  <T>(errorMsg: string, f: (i: T) => boolean) =>
+  <T>(errMsg: string, f: (i: T) => boolean) =>
   (x: T): T => {
     if (f(x)) {
       return x;
     } else {
-      throw Error(errorMsg);
+      throw Error(errMsg);
     }
   };
 
@@ -186,24 +186,24 @@ const toProductCode = (checkProductCodeExists: CheckProductCodeExists) => (produ
   // suitable for using in a pipeline
   const checkProduct = predicateToPassthru(`Invalid: ${productCode}`, checkProductCodeExists);
   // assemble the pipeline
-  return pipe(productCode, ProductCode.create('ProduceCode'), checkProduct);
+  return pipe(productCode, ProductCode.create('produceCode'), checkProduct);
 };
 
 /// Helper function for validateOrder
 const toValidatedOrderLine =
   (checkProductExists: CheckProductCodeExists) => (unvalidatedOrderLine: UnvalidatedOrderLine) => {
-    const orderLineId = OrderLineId.create('OrderLineId')(unvalidatedOrderLine.OrderLineId);
-    const productCode = toProductCode(checkProductExists)(unvalidatedOrderLine.ProductCode);
-    const quantity = OrderQuantity.create('OrderQuantity', productCode)(unvalidatedOrderLine.Quantity);
+    const orderLineId = OrderLineId.create('orderLineId')(unvalidatedOrderLine.orderLineId);
+    const productCode = toProductCode(checkProductExists)(unvalidatedOrderLine.productCode);
+    const quantity = OrderQuantity.create('orderQuantity', productCode)(unvalidatedOrderLine.quantity);
     return new ValidatedOrderLine(orderLineId, productCode, quantity);
   };
 
 const validateOrder: ValidateOrder = (checkProductCodeExists, checkAddressExists) => (unvalidatedOrder) => {
-  const orderId = OrderId.create('OrderId')(unvalidatedOrder.OrderId);
-  const customerInfo = toCustomerInfo(unvalidatedOrder.CustomerInfo);
-  const shippingAddress = toAddress(checkAddressExists)(unvalidatedOrder.ShippingAddress);
-  const billingAddress = toAddress(checkAddressExists)(unvalidatedOrder.BillingAddress);
-  const lines = pipe(unvalidatedOrder.Lines, A.map(toValidatedOrderLine(checkProductCodeExists)));
+  const orderId = OrderId.create('orderId')(unvalidatedOrder.orderId);
+  const customerInfo = toCustomerInfo(unvalidatedOrder.customerInfo);
+  const shippingAddress = toAddress(checkAddressExists)(unvalidatedOrder.shippingAddress);
+  const billingAddress = toAddress(checkAddressExists)(unvalidatedOrder.billingAddress);
+  const lines = pipe(unvalidatedOrder.lines, A.map(toValidatedOrderLine(checkProductCodeExists)));
   return new ValidatedOrder(orderId, customerInfo, shippingAddress, billingAddress, lines);
 };
 
@@ -212,29 +212,29 @@ const validateOrder: ValidateOrder = (checkProductCodeExists, checkAddressExists
 // ---------------------------
 
 const toPricedOrderLine = (getProductPrice: GetProductPrice) => (validatedOrderLine: ValidatedOrderLine) => {
-  const qty = validatedOrderLine.Quantity.value;
-  const price = getProductPrice(validatedOrderLine.ProductCode);
+  const qty = validatedOrderLine.quantity.value;
+  const price = getProductPrice(validatedOrderLine.productCode);
   const linePrice = Price.multiply(price)(qty);
   return new PricedOrderLine(
-    validatedOrderLine.OrderLineId,
-    validatedOrderLine.ProductCode,
-    validatedOrderLine.Quantity,
+    validatedOrderLine.orderLineId,
+    validatedOrderLine.productCode,
+    validatedOrderLine.quantity,
     linePrice,
   );
 };
 
 const priceOrder: PriceOrder = (getProductPrice) => (validatedOrder) => {
-  const lines = pipe(validatedOrder.Lines, A.map(toPricedOrderLine(getProductPrice)));
+  const lines = pipe(validatedOrder.lines, A.map(toPricedOrderLine(getProductPrice)));
   const amountToBill = pipe(
     lines,
-    A.map((l) => l.LinePrice), // get each line price
+    A.map((l) => l.linePrice), // get each line price
     BillingAmount.sumPrices, // add them together as a BillingAmount
   );
   return new PricedOrder(
-    validatedOrder.OrderId,
-    validatedOrder.CustomerInfo,
-    validatedOrder.ShippingAddress,
-    validatedOrder.BillingAddress,
+    validatedOrder.orderId,
+    validatedOrder.customerInfo,
+    validatedOrder.shippingAddress,
+    validatedOrder.billingAddress,
     amountToBill,
     lines,
   );

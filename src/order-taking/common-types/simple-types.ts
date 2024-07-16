@@ -27,7 +27,7 @@ export class String50 implements WrappedClass<string, typeof Symbol.string50> {
   // Return None if input is null, empty.
   // Return error if length > maxLen
   // Return Some if the input is valid
-  static createOption = (fieldName: string) => ConstrainedType.createStringOption(fieldName, this, 50);
+  static createOption = (fieldName?: string) => ConstrainedType.createStringOption(fieldName, this, 50);
 }
 
 // An email address
@@ -150,7 +150,7 @@ export class Price implements WrappedClass<number, typeof Symbol.price> {
   constructor(readonly value: number) {}
   // Create a Price from a decimal.
   // Return Error if input is not a decimal between 0.0 and 1000.00
-  static create = ConstrainedType.createNumber('Price', this, 0, 1000);
+  static create = ConstrainedType.createNumber('price', this, 0, 1000);
 
   // Create a Price from a decimal.
   // Throw an exception if out of bounds. This should only be used if you know the value is valid.
@@ -175,7 +175,7 @@ export class BillingAmount implements WrappedClass<number, typeof Symbol.billing
 
   // Create a BillingAmount from a decimal.
   // Return Error if input is not a decimal between 0.0 and 10000.00
-  static create = ConstrainedType.createNumber('BillingAmount', this, 0, 10000);
+  static create = ConstrainedType.createNumber('billingAmount', this, 0, 10000);
 
   // Sum a list of prices to make a billing amount
   // Return Error if total is out of bounds

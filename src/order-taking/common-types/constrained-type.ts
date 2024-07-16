@@ -25,7 +25,7 @@ export const createString =
 // Return Some if the input is valid
 export const createStringOption =
   <T>(fieldName: string, ctor: { new (i: string): T }, maxLen: number) =>
-  (str: string): E.Either<string, O.Option<T>> => {
+  (str?: string): E.Either<string, O.Option<T>> => {
     if (!str) {
       return E.right(O.none);
     }
