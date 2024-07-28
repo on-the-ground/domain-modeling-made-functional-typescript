@@ -56,7 +56,7 @@ export class CustomerInfoDto {
 
   /// Convert the DTO into a CustomerInfo object
   /// Used when importing from the outside world into the domain, eg loading from a database
-  static toCustomerInfo(dto: CustomerInfoDto): E.Either<string, Common.CustomerInfo> {
+  static toCustomerInfo(dto: CustomerInfoDto): E.Either<Error, Common.CustomerInfo> {
     return pipe(
       E.Do,
       // get each (validated) simple type from the DTO as a success or failure
@@ -112,7 +112,7 @@ export class AddressDto {
 
   /// Convert the DTO into a Address object
   /// Used when importing from the outside world into the domain, eg loading from a database.
-  static toAddress(dto: AddressDto): E.Either<string, Common.Address> {
+  static toAddress(dto: AddressDto): E.Either<Error, Common.Address> {
     return pipe(
       E.Do,
       // get each (validated) simple type from the DTO as a success or failure

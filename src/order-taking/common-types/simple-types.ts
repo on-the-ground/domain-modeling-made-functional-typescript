@@ -8,6 +8,7 @@ import { match, P } from 'ts-pattern';
 import { WrappedClass } from '../../libs/brand';
 import * as ConstrainedType from './constrained-type';
 import * as Symbol from './symbols';
+import { errorFrom } from 'src/libs/error';
 
 // ===============================
 // Simple types and constrained types related to the OrderTaking domain.
@@ -37,10 +38,7 @@ export class EmailAddress implements WrappedClass<string, typeof Symbol.emailAdd
 
   // Create an EmailAddress from a string
   // Return Error if input is null, empty, or doesn't have an "@" in it
-  static create = (fieldName: string) => {
-    const pattern = '.+@.+'; // anything separated by an "@"
-    return ConstrainedType.createLike(fieldName, this, pattern);
-  };
+  static create = (fieldName: string) => ConstrainedType.createLike(fieldName, this, '.+@.+'); // anything separated by an "@"
 }
 
 // A zip code
@@ -50,10 +48,7 @@ export class ZipCode implements WrappedClass<string, typeof Symbol.zipCode> {
 
   // Create a ZipCode from a string
   // Return Error if input is null, empty, or doesn't have 5 digits
-  static create = (fieldName: string) => {
-    const pattern = 'd{5}';
-    return ConstrainedType.createLike(fieldName, this, pattern);
-  };
+  static create = (fieldName: string) => ConstrainedType.createLike(fieldName, this, 'd{5}');
 }
 
 // An Id for Orders. Constrained to be a non-empty string <= 50 chars
@@ -102,7 +97,7 @@ export type ProductCode = WidgetCode | GizmoCode;
 // Return Error if input is null, empty, or not matching pattern
 export const createProductCode = (fieldName: string) => (code: string) => {
   if (!code) {
-    return E.left(`${fieldName} must not be null or empty`);
+    return errorFrom(`${fieldName} must not be null or empty`);
   }
   if (code.startsWith('W')) {
     return WidgetCode.create(fieldName);
@@ -110,7 +105,7 @@ export const createProductCode = (fieldName: string) => (code: string) => {
   if (code.startsWith('G')) {
     return GizmoCode.create(fieldName);
   }
-  return E.left(`${fieldName}: Format not recognized '${code}'`);
+  return errorFrom(`${fieldName}: Format not recognized '${code}'`);
 };
 
 // Constrained to be a integer between 1 and 1000
@@ -138,7 +133,7 @@ export type OrderQuantity = UnitQuantity | KilogramQuantity;
 export const createOrderQuantity = (
   fieldName: string,
   productCode: ProductCode,
-): ((num: number) => E.Either<string, OrderQuantity>) =>
+): ((num: number) => E.Either<Error, OrderQuantity>) =>
   match(productCode)
     .with(P.instanceOf(WidgetCode), () => UnitQuantity.create(fieldName))
     .with(P.instanceOf(GizmoCode), () => KilogramQuantity.create(fieldName))

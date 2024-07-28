@@ -90,24 +90,16 @@ const toCustomerInfo = (
   pipe(
     E.Do,
     E.bind('firstName', () =>
-      pipe(
-        unvalidatedCustomerInfo.firstName,
-        Common.String50.create('firstName'),
-        E.mapLeft((e) => new ValidationError(e)),
-      ),
+      pipe(unvalidatedCustomerInfo.firstName, Common.String50.create('firstName'), E.mapLeft(ValidationError.from)),
     ),
     E.bind('lastName', () =>
-      pipe(
-        unvalidatedCustomerInfo.lastName,
-        Common.String50.create('lastName'),
-        E.mapLeft((e) => new ValidationError(e)),
-      ),
+      pipe(unvalidatedCustomerInfo.lastName, Common.String50.create('lastName'), E.mapLeft(ValidationError.from)),
     ),
     E.bind('emailAddress', () =>
       pipe(
         unvalidatedCustomerInfo.emailAddress,
         Common.EmailAddress.create('emailAddress'),
-        E.mapLeft((e) => new ValidationError(e)),
+        E.mapLeft(ValidationError.from),
       ),
     ),
     E.bind('name', ({ firstName, lastName }) => E.right(new Common.PersonalName(firstName, lastName))),
@@ -118,46 +110,20 @@ const toAddress = (checkedAddress: CheckedAddress): E.Either<ValidationError, Co
   pipe(
     E.Do,
     E.bind('addressLine1', () =>
-      pipe(
-        checkedAddress.addressLine1,
-        Common.String50.create('addressLine1'),
-        E.mapLeft((e) => new ValidationError(e)),
-      ),
+      pipe(checkedAddress.addressLine1, Common.String50.create('addressLine1'), E.mapLeft(ValidationError.from)),
     ),
     E.bind('addressLine2', () =>
-      pipe(
-        checkedAddress.addressLine2,
-        Common.String50.createOption('addressLine2'),
-        E.mapLeft((e) => new ValidationError(e)),
-      ),
+      pipe(checkedAddress.addressLine2, Common.String50.createOption('addressLine2'), E.mapLeft(ValidationError.from)),
     ),
     E.bind('addressLine3', () =>
-      pipe(
-        checkedAddress.addressLine3,
-        Common.String50.createOption('addressLine3'),
-        E.mapLeft((e) => new ValidationError(e)),
-      ),
+      pipe(checkedAddress.addressLine3, Common.String50.createOption('addressLine3'), E.mapLeft(ValidationError.from)),
     ),
     E.bind('addressLine4', () =>
-      pipe(
-        checkedAddress.addressLine4,
-        Common.String50.createOption('addressLine4'),
-        E.mapLeft((e) => new ValidationError(e)),
-      ),
+      pipe(checkedAddress.addressLine4, Common.String50.createOption('addressLine4'), E.mapLeft(ValidationError.from)),
     ),
-    E.bind('city', () =>
-      pipe(
-        checkedAddress.city,
-        Common.String50.create('city'),
-        E.mapLeft((e) => new ValidationError(e)),
-      ),
-    ),
+    E.bind('city', () => pipe(checkedAddress.city, Common.String50.create('city'), E.mapLeft(ValidationError.from))),
     E.bind('zipCode', () =>
-      pipe(
-        checkedAddress.zipCode,
-        Common.ZipCode.create('zipCode'),
-        E.mapLeft((e) => new ValidationError(e)),
-      ),
+      pipe(checkedAddress.zipCode, Common.ZipCode.create('zipCode'), E.mapLeft(ValidationError.from)),
     ),
     E.map((i) => new Common.Address(i.addressLine1, i.addressLine2, i.addressLine3, i.addressLine4, i.city, i.zipCode)),
   );
@@ -178,13 +144,13 @@ const toCheckedAddress = (
 
 const toOrderId: (orderId: string) => E.Either<ValidationError, Common.OrderId> = flow(
   Common.OrderId.create('orderId'),
-  E.mapLeft((e) => new ValidationError(e)), // convert creation error into ValidationError
+  E.mapLeft(ValidationError.from), // convert creation error into ValidationError
 );
 
 /// Helper function for validateOrder
 const toOrderLineId: (orderLineId: string) => E.Either<ValidationError, Common.OrderLineId> = flow(
   Common.OrderLineId.create('orderLineId'),
-  E.mapLeft((e) => new ValidationError(e)),
+  E.mapLeft(ValidationError.from),
 );
 
 /// Helper function for validateOrder
@@ -197,19 +163,12 @@ const toProductCode = (checkProductCodeExists: CheckProductCodeExists) => {
       : E.left(new ValidationError(`Invalid: ${productCode.value}`));
 
   // assemble the pipeline
-  return flow(
-    Common.createProductCode('productCode'),
-    E.mapLeft((e) => new ValidationError(e)),
-    E.flatMap(checkProduct),
-  );
+  return flow(Common.createProductCode('productCode'), E.mapLeft(ValidationError.from), E.flatMap(checkProduct));
 };
 
 /// Helper function for validateOrder1
 const toOrderQuantity = (productCode: Common.ProductCode) =>
-  flow(
-    Common.createOrderQuantity('orderQuantity', productCode),
-    E.mapLeft((e) => new ValidationError(e)),
-  );
+  flow(Common.createOrderQuantity('orderQuantity', productCode), E.mapLeft(ValidationError.from));
 
 /// Helper function for validateOrder
 const toValidatedOrderLine =
@@ -247,13 +206,7 @@ const toPricedOrderLine = (getProductPrice: GetProductPrice) => (validatedOrderL
   const price = getProductPrice(validatedOrderLine.productCode);
   return pipe(
     E.Do,
-    E.bind('linePrice', () =>
-      pipe(
-        qty,
-        price.multiply,
-        E.mapLeft((e) => new PricingError(e)),
-      ),
-    ),
+    E.bind('linePrice', () => pipe(qty, price.multiply, E.mapLeft(PricingError.from))),
     E.map(
       (i) =>
         new PricedOrderLine(
@@ -281,7 +234,7 @@ const priceOrder: PriceOrder = (getProductPrice) => (validatedOrder) =>
         lines,
         A.map((l: PricedOrderLine) => l.linePrice), // get each line price
         Common.BillingAmount.sumPrices, // add them together as a BillingAmount
-        E.mapLeft((e) => new PricingError(e)), // convert to PlaceOrderError
+        E.mapLeft(PricingError.from), // convert to PlaceOrderError
       ),
     ),
     E.map(
