@@ -22,13 +22,13 @@ export class String50 implements WrappedClass<string, typeof Symbol.string50> {
   constructor(readonly value: string) {}
   // Create an String50 from a string
   // Return Error if input is null, empty, or length > 50
-  static create = (fieldName: string) => ConstrainedType.createString(fieldName, this, 50);
+  static create = ConstrainedType.createString(this, 50);
 
   // Create an String50 from a string
   // Return None if input is null, empty.
   // Return error if length > maxLen
   // Return Some if the input is valid
-  static createOption = (fieldName?: string) => ConstrainedType.createStringOption(fieldName, this, 50);
+  static createOption = ConstrainedType.createStringOption(this, 50);
 }
 
 // An email address
@@ -38,7 +38,7 @@ export class EmailAddress implements WrappedClass<string, typeof Symbol.emailAdd
 
   // Create an EmailAddress from a string
   // Return Error if input is null, empty, or doesn't have an "@" in it
-  static create = (fieldName: string) => ConstrainedType.createLike(fieldName, this, '.+@.+'); // anything separated by an "@"
+  static create = ConstrainedType.createLike(this, '.+@.+'); // anything separated by an "@"
 }
 
 // A zip code
@@ -48,7 +48,7 @@ export class ZipCode implements WrappedClass<string, typeof Symbol.zipCode> {
 
   // Create a ZipCode from a string
   // Return Error if input is null, empty, or doesn't have 5 digits
-  static create = (fieldName: string) => ConstrainedType.createLike(fieldName, this, 'd{5}');
+  static create = ConstrainedType.createLike(this, 'd{5}');
 }
 
 // An Id for Orders. Constrained to be a non-empty string <= 50 chars
@@ -58,7 +58,7 @@ export class OrderId implements WrappedClass<string, typeof Symbol.orderId> {
 
   // Create an OrderId from a string
   // Return Error if input is null, empty, or length > 50
-  static create = (fieldName: string) => ConstrainedType.createString(fieldName, this, 50);
+  static create = ConstrainedType.createString(this, 50);
 }
 
 // An Id for OrderLines. Constrained to be a non-empty string <= 50 chars
@@ -68,7 +68,7 @@ export class OrderLineId implements WrappedClass<string, typeof Symbol.orderLine
 
   // Create an OrderLineId from a string
   // Return Error if input is null, empty, or length > 50
-  static create = (fieldName: string) => ConstrainedType.createString(fieldName, this, 50);
+  static create = ConstrainedType.createString(this, 50);
 }
 
 // The codes for Widgets start with a "W" and then four digits
@@ -78,7 +78,7 @@ export class WidgetCode implements WrappedClass<string, typeof Symbol.widgetCode
   // Create an WidgetCode from a string
   // Return Error if input is null. empty, or not matching pattern
   // The codes for Widgets start with a "W" and then four digits
-  static create = (fieldName: string) => ConstrainedType.createLike(fieldName, this, 'Wd{4}');
+  static create = ConstrainedType.createLike(this, 'Wd{4}');
 }
 
 // The codes for Gizmos start with a "G" and then three digits.
@@ -88,24 +88,24 @@ export class GizmoCode implements WrappedClass<string, typeof Symbol.gizmoCode> 
   // Create an GizmoCode from a string
   // Return Error if input is null, empty, or not matching pattern
   // The codes for Gizmos start with a "G" and then three digits.
-  static create = (fieldName: string) => ConstrainedType.createLike(fieldName, this, 'Gd{3}');
+  static create = ConstrainedType.createLike(this, 'Gd{3}');
 }
 
 // A ProductCode is either a Widget or a Gizmo
 export type ProductCode = WidgetCode | GizmoCode;
 // Create an ProductCode from a string
 // Return Error if input is null, empty, or not matching pattern
-export const createProductCode = (fieldName: string) => (code: string) => {
+export const createProductCode = (code: string) => {
   if (!code) {
-    return errorFrom(`${fieldName} must not be null or empty`);
+    return errorFrom(`must not be null or empty`);
   }
   if (code.startsWith('W')) {
-    return WidgetCode.create(fieldName);
+    return WidgetCode.create;
   }
   if (code.startsWith('G')) {
-    return GizmoCode.create(fieldName);
+    return GizmoCode.create;
   }
-  return errorFrom(`${fieldName}: Format not recognized '${code}'`);
+  return errorFrom(`format not recognized '${code}'`);
 };
 
 // Constrained to be a integer between 1 and 1000
@@ -114,7 +114,7 @@ export class UnitQuantity implements WrappedClass<number, typeof Symbol.unitQuan
   constructor(readonly value: number) {}
   // Create a UnitQuantity from a int
   // Return Error if input is not an integer between 1 and 1000
-  static create = (fieldName: string) => ConstrainedType.createNumber(fieldName, this, 1, 1000);
+  static create = ConstrainedType.createNumber(this, 1, 1000);
 }
 
 // Constrained to be a decimal between 0.05 and 100.00
@@ -123,20 +123,17 @@ export class KilogramQuantity implements WrappedClass<number, typeof Symbol.kilo
   constructor(readonly value: number) {}
   // Create a KilogramQuantity from a decimal.
   // Return Error if input is not a decimal between 0.05 and 100.00
-  static create = (fieldName: string) => ConstrainedType.createNumber(fieldName, this, 0.05, 100);
+  static create = ConstrainedType.createNumber(this, 0.05, 100);
 }
 
 // A Quantity is either a Unit or a Kilogram
 export type OrderQuantity = UnitQuantity | KilogramQuantity;
 
 // Create a OrderQuantity from a productCode and quantity
-export const createOrderQuantity = (
-  fieldName: string,
-  productCode: ProductCode,
-): ((num: number) => E.Either<Error, OrderQuantity>) =>
+export const createOrderQuantity = (productCode: ProductCode): ((num: number) => E.Either<Error, OrderQuantity>) =>
   match(productCode)
-    .with(P.instanceOf(WidgetCode), () => UnitQuantity.create(fieldName))
-    .with(P.instanceOf(GizmoCode), () => KilogramQuantity.create(fieldName))
+    .with(P.instanceOf(WidgetCode), () => UnitQuantity.create)
+    .with(P.instanceOf(GizmoCode), () => KilogramQuantity.create)
     .exhaustive();
 
 // Constrained to be a decimal between 0.0 and 1000.00
@@ -145,7 +142,7 @@ export class Price implements WrappedClass<number, typeof Symbol.price> {
   constructor(readonly value: number) {}
   // Create a Price from a decimal.
   // Return Error if input is not a decimal between 0.0 and 1000.00
-  static create = ConstrainedType.createNumber('price', this, 0, 1000);
+  static create = ConstrainedType.createNumber(this, 0, 1000);
 
   // Create a Price from a decimal.
   // Throw an exception if out of bounds. This should only be used if you know the value is valid.
@@ -158,7 +155,7 @@ export class Price implements WrappedClass<number, typeof Symbol.price> {
 
   // Multiply a Price by a decimal qty.
   // Return Error if new price is out of bounds.
-  multiply(qty: number) {
+  multiply(qty: number): E.Either<Error, Price> {
     return Price.create(qty * this.value);
   }
 }
@@ -170,7 +167,7 @@ export class BillingAmount implements WrappedClass<number, typeof Symbol.billing
 
   // Create a BillingAmount from a decimal.
   // Return Error if input is not a decimal between 0.0 and 10000.00
-  static create = ConstrainedType.createNumber('billingAmount', this, 0, 10000);
+  static create = ConstrainedType.createNumber(this, 0, 10000);
 
   // Sum a list of prices to make a billing amount
   // Return Error if total is out of bounds

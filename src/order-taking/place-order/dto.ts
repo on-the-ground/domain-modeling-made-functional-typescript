@@ -60,9 +60,9 @@ export class CustomerInfoDto {
     return pipe(
       E.Do,
       // get each (validated) simple type from the DTO as a success or failure
-      E.bind('first', () => Common.String50.create('firstName')(dto.firstName)),
-      E.bind('last', () => Common.String50.create('lastName')(dto.lastName)),
-      E.bind('email', () => Common.EmailAddress.create('emailAddress')(dto.emailAddress)),
+      E.bind('first', () => Common.String50.create(dto.firstName)),
+      E.bind('last', () => Common.String50.create(dto.lastName)),
+      E.bind('email', () => Common.EmailAddress.create(dto.emailAddress)),
       // combine the components to create the domain object
       E.bind('name', ({ first, last }) => E.right(new Common.PersonalName(first, last))),
       E.map(({ name, email }) => new Common.CustomerInfo(name, email)),
@@ -116,12 +116,12 @@ export class AddressDto {
     return pipe(
       E.Do,
       // get each (validated) simple type from the DTO as a success or failure
-      E.bind('addressLine1', () => Common.String50.create('addressLine1')(dto.addressLine1)),
-      E.bind('addressLine2', () => Common.String50.createOption('addressLine2')(dto.addressLine2)),
-      E.bind('addressLine3', () => Common.String50.createOption('addressLine3')(dto.addressLine3)),
-      E.bind('addressLine4', () => Common.String50.createOption('addressLine4')(dto.addressLine4)),
-      E.bind('city', () => Common.String50.create('city')(dto.city)),
-      E.bind('zipCode', () => Common.ZipCode.create('zipCode')(dto.zipCode)),
+      E.bind('addressLine1', () => Common.String50.create(dto.addressLine1)),
+      E.bind('addressLine2', () => Common.String50.createOption(dto.addressLine2)),
+      E.bind('addressLine3', () => Common.String50.createOption(dto.addressLine3)),
+      E.bind('addressLine4', () => Common.String50.createOption(dto.addressLine4)),
+      E.bind('city', () => Common.String50.create(dto.city)),
+      E.bind('zipCode', () => Common.ZipCode.create(dto.zipCode)),
       // combine the components to create the domain object
       E.map(
         (i) => new Common.Address(i.addressLine1, i.addressLine2, i.addressLine3, i.addressLine4, i.city, i.zipCode),

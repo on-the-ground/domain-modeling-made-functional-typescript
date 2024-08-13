@@ -49,49 +49,48 @@ const failOnError: <T>(aResult: E.Either<Error, T>) => T = E.getOrElse((e) => {
 });
 
 namespace String50 {
-  export const create = (fieldName: string) => flow(Common.String50.create(fieldName), failOnError);
-  export const createOption = (fieldName: string) => flow(Common.String50.createOption(fieldName), failOnError);
+  export const create = flow(Common.String50.create, failOnError);
+  export const createOption = flow(Common.String50.createOption, failOnError);
 }
 
 namespace EmailAddress {
-  export const create = (fieldName: string) => flow(Common.EmailAddress.create(fieldName), failOnError);
+  export const create = flow(Common.EmailAddress.create, failOnError);
 }
 
 namespace ZipCode {
-  export const create = (fieldName: string) => flow(Common.ZipCode.create(fieldName), failOnError);
+  export const create = flow(Common.ZipCode.create, failOnError);
 }
 
 namespace OrderId {
-  export const create = (fieldName: string) => flow(Common.OrderId.create(fieldName), failOnError);
+  export const create = flow(Common.OrderId.create, failOnError);
 }
 
 namespace OrderLineId {
-  export const create = (fieldName: string) => flow(Common.OrderLineId.create(fieldName), failOnError);
+  export const create = flow(Common.OrderLineId.create, failOnError);
 }
 
 namespace WidgetCode {
-  export const create = (fieldName: string) => flow(Common.WidgetCode.create(fieldName), failOnError);
+  export const create = flow(Common.WidgetCode.create, failOnError);
 }
 
 namespace GizmoCode {
-  export const create = (fieldName: string) => flow(Common.GizmoCode.create(fieldName), failOnError);
+  export const create = flow(Common.GizmoCode.create, failOnError);
 }
 
 namespace ProductCode {
-  export const create = (fieldName: string) => flow(Common.createProductCode(fieldName), failOnError);
+  export const create = flow(Common.createProductCode, failOnError);
 }
 
 namespace UnitQuantity {
-  export const create = (fieldName: string) => flow(Common.UnitQuantity.create(fieldName), failOnError);
+  export const create = flow(Common.UnitQuantity.create, failOnError);
 }
 
 namespace KilogramQuantity {
-  export const create = (fieldName: string) => flow(Common.KilogramQuantity.create(fieldName), failOnError);
+  export const create = flow(Common.KilogramQuantity.create, failOnError);
 }
 
 namespace OrderQuantity {
-  export const create = (fieldName: string, productCode: Common.ProductCode) =>
-    flow(Common.createOrderQuantity(fieldName, productCode), failOnError);
+  export const create = (productCode: Common.ProductCode) => flow(Common.createOrderQuantity(productCode), failOnError);
 }
 
 namespace Price {
@@ -151,21 +150,21 @@ type PriceOrder = (
 // ---------------------------
 
 const toCustomerInfo = (unvalidatedCustomerInfo: UnvalidatedCustomerInfo) => {
-  const firstName = String50.create('firstName')(unvalidatedCustomerInfo.firstName);
-  const lastName = String50.create('lastName')(unvalidatedCustomerInfo.lastName);
-  const emailAddress = EmailAddress.create('emailAddress')(unvalidatedCustomerInfo.emailAddress);
+  const firstName = String50.create(unvalidatedCustomerInfo.firstName);
+  const lastName = String50.create(unvalidatedCustomerInfo.lastName);
+  const emailAddress = EmailAddress.create(unvalidatedCustomerInfo.emailAddress);
   return new Common.CustomerInfo(new Common.PersonalName(firstName, lastName), emailAddress);
 };
 
 const toAddress = (checkAddressExists: CheckAddressExists) => (unvalidatedAddress: UnvalidatedAddress) => {
   // call the remote service
   const checkedAddress = checkAddressExists(unvalidatedAddress);
-  const addressLine1 = String50.create('addressLine1')(checkedAddress.addressLine1);
-  const addressLine2 = String50.createOption('addressLine2')(checkedAddress.addressLine2);
-  const addressLine3 = String50.createOption('addressLine3')(checkedAddress.addressLine3);
-  const addressLine4 = String50.createOption('addressLine4')(checkedAddress.addressLine4);
-  const city = String50.create('city')(checkedAddress.city);
-  const zipCode = ZipCode.create('zipCode')(checkedAddress.zipCode);
+  const addressLine1 = String50.create(checkedAddress.addressLine1);
+  const addressLine2 = String50.createOption(checkedAddress.addressLine2);
+  const addressLine3 = String50.createOption(checkedAddress.addressLine3);
+  const addressLine4 = String50.createOption(checkedAddress.addressLine4);
+  const city = String50.create(checkedAddress.city);
+  const zipCode = ZipCode.create(checkedAddress.zipCode);
   return new Common.Address(addressLine1, addressLine2, addressLine3, addressLine4, city, zipCode);
 };
 
@@ -192,14 +191,14 @@ const toProductCode = (checkProductCodeExists: CheckProductCodeExists) => (produ
 /// Helper function for validateOrder
 const toValidatedOrderLine =
   (checkProductExists: CheckProductCodeExists) => (unvalidatedOrderLine: UnvalidatedOrderLine) => {
-    const orderLineId = OrderLineId.create('orderLineId')(unvalidatedOrderLine.orderLineId);
+    const orderLineId = OrderLineId.create(unvalidatedOrderLine.orderLineId);
     const productCode = toProductCode(checkProductExists)(unvalidatedOrderLine.productCode);
-    const quantity = OrderQuantity.create('orderQuantity', productCode)(unvalidatedOrderLine.quantity);
+    const quantity = OrderQuantity.create(productCode)(unvalidatedOrderLine.quantity);
     return new ValidatedOrderLine(orderLineId, productCode, quantity);
   };
 
 const validateOrder: ValidateOrder = (checkProductCodeExists, checkAddressExists) => (unvalidatedOrder) => {
-  const orderId = OrderId.create('orderId')(unvalidatedOrder.orderId);
+  const orderId = OrderId.create(unvalidatedOrder.orderId);
   const customerInfo = toCustomerInfo(unvalidatedOrder.customerInfo);
   const shippingAddress = toAddress(checkAddressExists)(unvalidatedOrder.shippingAddress);
   const billingAddress = toAddress(checkAddressExists)(unvalidatedOrder.billingAddress);
