@@ -5,7 +5,7 @@ import * as NA from 'fp-ts/NonEmptyArray';
 import * as N from 'fp-ts/number';
 import * as O from 'fp-ts/Option';
 import { match, P } from 'ts-pattern';
-import { WrappedClass } from '../../libs/brand';
+import { Wrapper } from '../../libs/brand';
 import * as ConstrainedType from './constrained-type';
 import * as Symbol from './symbols';
 import { errorFrom } from 'src/libs/error';
@@ -17,7 +17,7 @@ import { errorFrom } from 'src/libs/error';
 // ===============================
 
 // Constrained to be 50 chars or less, not null
-export class String50 implements WrappedClass<string, typeof Symbol.string50> {
+export class String50 implements Wrapper<string, typeof Symbol.string50> {
   readonly [Symbol.string50]: never;
   constructor(readonly value: string) {}
   // Create an String50 from a string
@@ -35,7 +35,7 @@ export class String50 implements WrappedClass<string, typeof Symbol.string50> {
 }
 
 // An email address
-export class EmailAddress implements WrappedClass<string, typeof Symbol.emailAddress> {
+export class EmailAddress implements Wrapper<string, typeof Symbol.emailAddress> {
   readonly [Symbol.emailAddress]: never;
   constructor(readonly value: string) {}
 
@@ -45,7 +45,7 @@ export class EmailAddress implements WrappedClass<string, typeof Symbol.emailAdd
 }
 
 // A zip code
-export class ZipCode implements WrappedClass<string, typeof Symbol.zipCode> {
+export class ZipCode implements Wrapper<string, typeof Symbol.zipCode> {
   readonly [Symbol.zipCode]: never;
   constructor(readonly value: string) {}
 
@@ -55,7 +55,7 @@ export class ZipCode implements WrappedClass<string, typeof Symbol.zipCode> {
 }
 
 // An Id for Orders. Constrained to be a non-empty string <= 50 chars
-export class OrderId implements WrappedClass<string, typeof Symbol.orderId> {
+export class OrderId implements Wrapper<string, typeof Symbol.orderId> {
   readonly [Symbol.orderId]: never;
   constructor(readonly value: string) {}
 
@@ -65,7 +65,7 @@ export class OrderId implements WrappedClass<string, typeof Symbol.orderId> {
 }
 
 // An Id for OrderLines. Constrained to be a non-empty string <= 50 chars
-export class OrderLineId implements WrappedClass<string, typeof Symbol.orderLineId> {
+export class OrderLineId implements Wrapper<string, typeof Symbol.orderLineId> {
   readonly [Symbol.orderLineId]: never;
   constructor(readonly value: string) {}
 
@@ -75,7 +75,7 @@ export class OrderLineId implements WrappedClass<string, typeof Symbol.orderLine
 }
 
 // The codes for Widgets start with a "W" and then four digits
-export class WidgetCode implements WrappedClass<string, typeof Symbol.widgetCode> {
+export class WidgetCode implements Wrapper<string, typeof Symbol.widgetCode> {
   readonly [Symbol.widgetCode]: never;
   constructor(readonly value: string) {}
   // Create an WidgetCode from a string
@@ -85,7 +85,7 @@ export class WidgetCode implements WrappedClass<string, typeof Symbol.widgetCode
 }
 
 // The codes for Gizmos start with a "G" and then three digits.
-export class GizmoCode implements WrappedClass<string, typeof Symbol.gizmoCode> {
+export class GizmoCode implements Wrapper<string, typeof Symbol.gizmoCode> {
   readonly [Symbol.gizmoCode]: never;
   constructor(readonly value: string) {}
   // Create an GizmoCode from a string
@@ -112,7 +112,7 @@ export function createProductCode(code: string): E.Either<Error, ProductCode> {
 }
 
 // Constrained to be a integer between 1 and 1000
-export class UnitQuantity implements WrappedClass<number, typeof Symbol.unitQuantity> {
+export class UnitQuantity implements Wrapper<number, typeof Symbol.unitQuantity> {
   readonly [Symbol.unitQuantity]: never;
   constructor(readonly value: number) {}
   // Create a UnitQuantity from a int
@@ -121,7 +121,7 @@ export class UnitQuantity implements WrappedClass<number, typeof Symbol.unitQuan
 }
 
 // Constrained to be a decimal between 0.05 and 100.00
-export class KilogramQuantity implements WrappedClass<number, typeof Symbol.kilogramQuantity> {
+export class KilogramQuantity implements Wrapper<number, typeof Symbol.kilogramQuantity> {
   readonly [Symbol.kilogramQuantity]: never;
   constructor(readonly value: number) {}
   // Create a KilogramQuantity from a decimal.
@@ -140,7 +140,7 @@ export const createOrderQuantity = (productCode: ProductCode): ((num: number) =>
     .exhaustive();
 
 // Constrained to be a decimal between 0.0 and 1000.00
-export class Price implements WrappedClass<number, typeof Symbol.price> {
+export class Price implements Wrapper<number, typeof Symbol.price> {
   readonly [Symbol.price]: never;
   constructor(readonly value: number) {}
   // Create a Price from a decimal.
@@ -164,7 +164,7 @@ export class Price implements WrappedClass<number, typeof Symbol.price> {
 }
 
 // Constrained to be a decimal between 0.0 and 10000.00
-export class BillingAmount implements WrappedClass<number, typeof Symbol.billingAmount> {
+export class BillingAmount implements Wrapper<number, typeof Symbol.billingAmount> {
   readonly [Symbol.billingAmount]: never;
   constructor(readonly value: number) {}
 
