@@ -114,7 +114,7 @@ export type PlaceOrderEvent = OrderPlaced | BillableOrderPlaced | OrderAcknowled
 
 /// All the things that can go wrong in this workflow
 export class ValidationError extends Error {
-  readonly [Symbol.validationError]: never;
+  [Symbol.validationError]: never;
   constructor(message: string) {
     super(message);
   }
@@ -125,7 +125,7 @@ export class ValidationError extends Error {
 }
 
 export class PricingError extends Error {
-  readonly [Symbol.pricingError]: never;
+  [Symbol.pricingError]: never;
   constructor(message: string) {
     super(message);
   }

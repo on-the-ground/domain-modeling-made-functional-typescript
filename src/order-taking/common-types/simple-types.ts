@@ -18,7 +18,7 @@ import { errorFrom } from 'src/libs/error';
 
 // Constrained to be 50 chars or less, not null
 export class String50 implements Wrapper<string, typeof Symbol.string50> {
-  readonly [Symbol.string50]: never;
+  [Symbol.string50]: never;
   constructor(readonly value: string) {}
   // Create an String50 from a string
   // Return Error if input is null, empty, or length > 50
@@ -36,7 +36,7 @@ export class String50 implements Wrapper<string, typeof Symbol.string50> {
 
 // An email address
 export class EmailAddress implements Wrapper<string, typeof Symbol.emailAddress> {
-  readonly [Symbol.emailAddress]: never;
+  [Symbol.emailAddress]: never;
   constructor(readonly value: string) {}
 
   // Create an EmailAddress from a string
@@ -46,7 +46,7 @@ export class EmailAddress implements Wrapper<string, typeof Symbol.emailAddress>
 
 // A zip code
 export class ZipCode implements Wrapper<string, typeof Symbol.zipCode> {
-  readonly [Symbol.zipCode]: never;
+  [Symbol.zipCode]: never;
   constructor(readonly value: string) {}
 
   // Create a ZipCode from a string
@@ -56,7 +56,7 @@ export class ZipCode implements Wrapper<string, typeof Symbol.zipCode> {
 
 // An Id for Orders. Constrained to be a non-empty string <= 50 chars
 export class OrderId implements Wrapper<string, typeof Symbol.orderId> {
-  readonly [Symbol.orderId]: never;
+  [Symbol.orderId]: never;
   constructor(readonly value: string) {}
 
   // Create an OrderId from a string
@@ -66,7 +66,7 @@ export class OrderId implements Wrapper<string, typeof Symbol.orderId> {
 
 // An Id for OrderLines. Constrained to be a non-empty string <= 50 chars
 export class OrderLineId implements Wrapper<string, typeof Symbol.orderLineId> {
-  readonly [Symbol.orderLineId]: never;
+  [Symbol.orderLineId]: never;
   constructor(readonly value: string) {}
 
   // Create an OrderLineId from a string
@@ -76,7 +76,7 @@ export class OrderLineId implements Wrapper<string, typeof Symbol.orderLineId> {
 
 // The codes for Widgets start with a "W" and then four digits
 export class WidgetCode implements Wrapper<string, typeof Symbol.widgetCode> {
-  readonly [Symbol.widgetCode]: never;
+  [Symbol.widgetCode]: never;
   constructor(readonly value: string) {}
   // Create an WidgetCode from a string
   // Return Error if input is null. empty, or not matching pattern
@@ -86,7 +86,7 @@ export class WidgetCode implements Wrapper<string, typeof Symbol.widgetCode> {
 
 // The codes for Gizmos start with a "G" and then three digits.
 export class GizmoCode implements Wrapper<string, typeof Symbol.gizmoCode> {
-  readonly [Symbol.gizmoCode]: never;
+  [Symbol.gizmoCode]: never;
   constructor(readonly value: string) {}
   // Create an GizmoCode from a string
   // Return Error if input is null, empty, or not matching pattern
@@ -113,7 +113,7 @@ export function createProductCode(code: string): E.Either<Error, ProductCode> {
 
 // Constrained to be a integer between 1 and 1000
 export class UnitQuantity implements Wrapper<number, typeof Symbol.unitQuantity> {
-  readonly [Symbol.unitQuantity]: never;
+  [Symbol.unitQuantity]: never;
   constructor(readonly value: number) {}
   // Create a UnitQuantity from a int
   // Return Error if input is not an integer between 1 and 1000
@@ -122,7 +122,7 @@ export class UnitQuantity implements Wrapper<number, typeof Symbol.unitQuantity>
 
 // Constrained to be a decimal between 0.05 and 100.00
 export class KilogramQuantity implements Wrapper<number, typeof Symbol.kilogramQuantity> {
-  readonly [Symbol.kilogramQuantity]: never;
+  [Symbol.kilogramQuantity]: never;
   constructor(readonly value: number) {}
   // Create a KilogramQuantity from a decimal.
   // Return Error if input is not a decimal between 0.05 and 100.00
@@ -141,7 +141,7 @@ export const createOrderQuantity = (productCode: ProductCode): ((num: number) =>
 
 // Constrained to be a decimal between 0.0 and 1000.00
 export class Price implements Wrapper<number, typeof Symbol.price> {
-  readonly [Symbol.price]: never;
+  [Symbol.price]: never;
   constructor(readonly value: number) {}
   // Create a Price from a decimal.
   // Return Error if input is not a decimal between 0.0 and 1000.00
@@ -165,7 +165,7 @@ export class Price implements Wrapper<number, typeof Symbol.price> {
 
 // Constrained to be a decimal between 0.0 and 10000.00
 export class BillingAmount implements Wrapper<number, typeof Symbol.billingAmount> {
-  readonly [Symbol.billingAmount]: never;
+  [Symbol.billingAmount]: never;
   constructor(readonly value: number) {}
 
   // Create a BillingAmount from a decimal.
