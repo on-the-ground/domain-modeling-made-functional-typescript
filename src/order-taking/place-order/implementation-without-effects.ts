@@ -185,7 +185,7 @@ const toProductCode = (checkProductCodeExists: CheckProductCodeExists) => (produ
   // suitable for using in a pipeline
   const checkProduct = predicateToPassthru(`Invalid: ${productCode}`, checkProductCodeExists);
   // assemble the pipeline
-  return pipe(productCode, ProductCode.create('produceCode'), checkProduct);
+  return pipe(productCode, ProductCode.create, checkProduct);
 };
 
 /// Helper function for validateOrder
