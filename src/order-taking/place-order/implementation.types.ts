@@ -1,8 +1,7 @@
 import { Option } from 'fp-ts/Option';
-import { PhantomBrand } from '../../libs/brand';
+import { PhantomBrand, Wrapper } from '../../libs/brand';
 
 import type * as Common from '../common-types';
-import type * as Symbol from '../common-types/symbols';
 import type { UnvalidatedAddress, PricedOrder, OrderAcknowledgmentSent, PlaceOrderEvent } from './public-types';
 
 // ======================================================
@@ -18,8 +17,8 @@ import type { UnvalidatedAddress, PricedOrder, OrderAcknowledgmentSent, PlaceOrd
 export type CheckProductCodeExists = (i: Common.ProductCode) => boolean;
 
 // Address validation
-
-export type CheckedAddress = PhantomBrand<UnvalidatedAddress, typeof Symbol.checkedAddress>;
+declare const checkedAddress: unique symbol;
+export type CheckedAddress = PhantomBrand<UnvalidatedAddress, typeof checkedAddress>;
 export const CheckedAddress = (i: UnvalidatedAddress) => i as CheckedAddress;
 
 // ---------------------------
@@ -54,8 +53,11 @@ export type GetProductPrice = (i: Common.ProductCode) => Common.Price;
 // Send OrderAcknowledgment
 // ---------------------------
 
-export type HtmlString = PhantomBrand<string, typeof Symbol.htmlString>;
-export const HtmlString = (i: string) => i as HtmlString;
+declare const htmlString: unique symbol;
+export class HtmlString implements Wrapper<string, typeof htmlString> {
+  [htmlString]: never;
+  constructor(readonly value: string) {}
+}
 
 export class OrderAcknowledgment {
   constructor(

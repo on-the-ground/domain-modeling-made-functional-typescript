@@ -3,7 +3,6 @@
 // namespace OrderTaking.PlaceOrder
 
 import { TaskEither } from 'fp-ts/TaskEither';
-import * as Symbol from '../common-types/symbols';
 
 import type * as Common from '../common-types';
 // ==================================
@@ -113,8 +112,9 @@ export type PlaceOrderEvent = OrderPlaced | BillableOrderPlaced | OrderAcknowled
 // error outputs
 
 /// All the things that can go wrong in this workflow
+declare const validationError: unique symbol;
 export class ValidationError extends Error {
-  [Symbol.validationError]: never;
+  [validationError]: never;
   constructor(message: string) {
     super(message);
   }
@@ -124,8 +124,9 @@ export class ValidationError extends Error {
   }
 }
 
+declare const pricingError: unique symbol;
 export class PricingError extends Error {
-  [Symbol.pricingError]: never;
+  [pricingError]: never;
   constructor(message: string) {
     super(message);
   }

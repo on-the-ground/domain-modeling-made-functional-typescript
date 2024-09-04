@@ -58,7 +58,7 @@ export const checkAddressExists: Implementation.CheckAddressExists = flow(Checke
 export const getProductPrice: GetProductPrice = (productCode) => Price.unsafeCreate(1); // dummy implementation
 
 export const createOrderAcknowledgmentLetter: CreateOrderAcknowledgmentLetter = (pricedOrder) =>
-  HtmlString('some text'); // dummy implementation
+  new HtmlString('some text'); // dummy implementation
 
 export const sendOrderAcknowledgment: SendOrderAcknowledgment = (orderAcknowledgement) => Sent;
 
