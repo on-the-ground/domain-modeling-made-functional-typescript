@@ -5,6 +5,7 @@
 import { TaskEither } from 'fp-ts/TaskEither';
 
 import type * as Common from '../common-types';
+import { Entity } from '../../libs/model-type';
 // ==================================
 // This file contains the definitions of PUBLIC types (exposed at the boundary of the bounded context)
 // related to the PlaceOrder workflow
@@ -62,16 +63,26 @@ export class OrderAcknowledgmentSent {
 }
 
 // priced state
-export class PricedOrderLine {
+export class PricedOrderLine extends Entity {
   constructor(
     readonly orderLineId: Common.OrderLineId,
     readonly productCode: Common.ProductCode,
     readonly quantity: Common.OrderQuantity,
     readonly linePrice: Common.Price,
-  ) {}
+  ) {
+    super();
+  }
+
+  isSameClass<PricedOrderLine>(obj: unknown): obj is PricedOrderLine {
+    return obj instanceof PricedOrderLine;
+  }
+
+  get id(): Common.OrderLineId {
+    return this.orderLineId;
+  }
 }
 
-export class PricedOrder {
+export class PricedOrder extends Entity {
   constructor(
     readonly orderId: Common.OrderId,
     readonly customerInfo: Common.CustomerInfo,
@@ -79,7 +90,17 @@ export class PricedOrder {
     readonly billingAddress: Common.Address,
     readonly amountToBill: Common.BillingAmount,
     readonly lines: readonly PricedOrderLine[],
-  ) {}
+  ) {
+    super();
+  }
+
+  isSameClass<PricedOrder>(obj: unknown): obj is PricedOrder {
+    return obj instanceof PricedOrder;
+  }
+
+  get id(): Common.OrderId {
+    return this.orderId;
+  }
 }
 
 /// Event to send to shipping context

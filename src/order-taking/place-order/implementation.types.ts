@@ -1,5 +1,6 @@
 import { Option } from 'fp-ts/Option';
 import { PhantomBrand, Wrapper } from '../../libs/brand';
+import { Entity } from '../../libs/model-type';
 
 import type * as Common from '../common-types';
 import type { UnvalidatedAddress, PricedOrder, OrderAcknowledgmentSent, PlaceOrderEvent } from './public-types';
@@ -25,22 +26,42 @@ export const CheckedAddress = (i: UnvalidatedAddress) => i as CheckedAddress;
 // Validated Order
 // ---------------------------
 
-export class ValidatedOrderLine {
+export class ValidatedOrderLine extends Entity {
   constructor(
     readonly orderLineId: Common.OrderLineId,
     readonly productCode: Common.ProductCode,
     readonly quantity: Common.OrderQuantity,
-  ) {}
+  ) {
+    super();
+  }
+
+  isSameClass<ValidatedOrderLine>(obj: unknown): obj is ValidatedOrderLine {
+    return obj instanceof ValidatedOrderLine;
+  }
+
+  get id(): Common.OrderLineId {
+    return this.orderLineId;
+  }
 }
 
-export class ValidatedOrder {
+export class ValidatedOrder extends Entity {
   constructor(
     readonly orderId: Common.OrderId,
     readonly customerInfo: Common.CustomerInfo,
     readonly shippingAddress: Common.Address,
     readonly billingAddress: Common.Address,
     readonly lines: readonly ValidatedOrderLine[],
-  ) {}
+  ) {
+    super();
+  }
+
+  isSameClass<ValidatedOrder>(obj: unknown): obj is ValidatedOrder {
+    return obj instanceof ValidatedOrder;
+  }
+
+  get id(): Common.OrderId {
+    return this.orderId;
+  }
 }
 
 // ---------------------------

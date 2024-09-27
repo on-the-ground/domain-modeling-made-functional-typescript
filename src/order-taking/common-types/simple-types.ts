@@ -7,7 +7,8 @@ import * as O from 'fp-ts/Option';
 import { match, P } from 'ts-pattern';
 import { Wrapper } from '../../libs/brand';
 import * as ConstrainedType from './constrained-type';
-import { errorFrom } from 'src/libs/error';
+import { errorFrom } from '../../libs/error';
+import { ValueObject } from '../../libs/model-type';
 
 // ===============================
 // Simple types and constrained types related to the OrderTaking domain.
@@ -16,9 +17,11 @@ import { errorFrom } from 'src/libs/error';
 // ===============================
 
 // Constrained to be 50 chars or less, not null
-export class String50 implements Wrapper<string, typeof string50> {
+export class String50 extends ValueObject implements Wrapper<string, typeof string50> {
   [string50]: never;
-  constructor(readonly value: string) {}
+  constructor(readonly value: string) {
+    super();
+  }
   // Create an String50 from a string
   // Return Error if input is null, empty, or length > 50
   static create: (s: string) => E.Either<Error, String50> = ConstrainedType.createString(this, 50);
@@ -34,9 +37,11 @@ export class String50 implements Wrapper<string, typeof string50> {
 }
 
 // An email address
-export class EmailAddress implements Wrapper<string, typeof emailAddress> {
+export class EmailAddress extends ValueObject implements Wrapper<string, typeof emailAddress> {
   [emailAddress]: never;
-  constructor(readonly value: string) {}
+  constructor(readonly value: string) {
+    super();
+  }
 
   // Create an EmailAddress from a string
   // Return Error if input is null, empty, or doesn't have an "@" in it
@@ -44,9 +49,11 @@ export class EmailAddress implements Wrapper<string, typeof emailAddress> {
 }
 
 // A zip code
-export class ZipCode implements Wrapper<string, typeof zipCode> {
+export class ZipCode extends ValueObject implements Wrapper<string, typeof zipCode> {
   [zipCode]: never;
-  constructor(readonly value: string) {}
+  constructor(readonly value: string) {
+    super();
+  }
 
   // Create a ZipCode from a string
   // Return Error if input is null, empty, or doesn't have 5 digits
@@ -54,9 +61,11 @@ export class ZipCode implements Wrapper<string, typeof zipCode> {
 }
 
 // An Id for Orders. Constrained to be a non-empty string <= 50 chars
-export class OrderId implements Wrapper<string, typeof orderId> {
+export class OrderId extends ValueObject implements Wrapper<string, typeof orderId> {
   [orderId]: never;
-  constructor(readonly value: string) {}
+  constructor(readonly value: string) {
+    super();
+  }
 
   // Create an OrderId from a string
   // Return Error if input is null, empty, or length > 50
@@ -64,9 +73,11 @@ export class OrderId implements Wrapper<string, typeof orderId> {
 }
 
 // An Id for OrderLines. Constrained to be a non-empty string <= 50 chars
-export class OrderLineId implements Wrapper<string, typeof orderLineId> {
+export class OrderLineId extends ValueObject implements Wrapper<string, typeof orderLineId> {
   [orderLineId]: never;
-  constructor(readonly value: string) {}
+  constructor(readonly value: string) {
+    super();
+  }
 
   // Create an OrderLineId from a string
   // Return Error if input is null, empty, or length > 50
@@ -74,9 +85,11 @@ export class OrderLineId implements Wrapper<string, typeof orderLineId> {
 }
 
 // The codes for Widgets start with a "W" and then four digits
-export class WidgetCode implements Wrapper<string, typeof widgetCode> {
+export class WidgetCode extends ValueObject implements Wrapper<string, typeof widgetCode> {
   [widgetCode]: never;
-  constructor(readonly value: string) {}
+  constructor(readonly value: string) {
+    super();
+  }
   // Create an WidgetCode from a string
   // Return Error if input is null. empty, or not matching pattern
   // The codes for Widgets start with a "W" and then four digits
@@ -84,9 +97,11 @@ export class WidgetCode implements Wrapper<string, typeof widgetCode> {
 }
 
 // The codes for Gizmos start with a "G" and then three digits.
-export class GizmoCode implements Wrapper<string, typeof gizmoCode> {
+export class GizmoCode extends ValueObject implements Wrapper<string, typeof gizmoCode> {
   [gizmoCode]: never;
-  constructor(readonly value: string) {}
+  constructor(readonly value: string) {
+    super();
+  }
   // Create an GizmoCode from a string
   // Return Error if input is null, empty, or not matching pattern
   // The codes for Gizmos start with a "G" and then three digits.
@@ -111,18 +126,22 @@ export function createProductCode(code: string): E.Either<Error, ProductCode> {
 }
 
 // Constrained to be a integer between 1 and 1000
-export class UnitQuantity implements Wrapper<number, typeof unitQuantity> {
+export class UnitQuantity extends ValueObject implements Wrapper<number, typeof unitQuantity> {
   [unitQuantity]: never;
-  constructor(readonly value: number) {}
+  constructor(readonly value: number) {
+    super();
+  }
   // Create a UnitQuantity from a int
   // Return Error if input is not an integer between 1 and 1000
   static create: (i: number) => E.Either<Error, UnitQuantity> = ConstrainedType.createNumber(this, 1, 1000);
 }
 
 // Constrained to be a decimal between 0.05 and 100.00
-export class KilogramQuantity implements Wrapper<number, typeof kilogramQuantity> {
+export class KilogramQuantity extends ValueObject implements Wrapper<number, typeof kilogramQuantity> {
   [kilogramQuantity]: never;
-  constructor(readonly value: number) {}
+  constructor(readonly value: number) {
+    super();
+  }
   // Create a KilogramQuantity from a decimal.
   // Return Error if input is not a decimal between 0.05 and 100.00
   static create: (i: number) => E.Either<Error, KilogramQuantity> = ConstrainedType.createNumber(this, 0.05, 100);
@@ -139,9 +158,11 @@ export const createOrderQuantity = (productCode: ProductCode): ((num: number) =>
     .exhaustive();
 
 // Constrained to be a decimal between 0.0 and 1000.00
-export class Price implements Wrapper<number, typeof price> {
+export class Price extends ValueObject implements Wrapper<number, typeof price> {
   [price]: never;
-  constructor(readonly value: number) {}
+  constructor(readonly value: number) {
+    super();
+  }
   // Create a Price from a decimal.
   // Return Error if input is not a decimal between 0.0 and 1000.00
   static create: (i: number) => E.Either<Error, Price> = ConstrainedType.createNumber(this, 0, 1000);
@@ -163,9 +184,11 @@ export class Price implements Wrapper<number, typeof price> {
 }
 
 // Constrained to be a decimal between 0.0 and 10000.00
-export class BillingAmount implements Wrapper<number, typeof billingAmount> {
+export class BillingAmount extends ValueObject implements Wrapper<number, typeof billingAmount> {
   [billingAmount]: never;
-  constructor(readonly value: number) {}
+  constructor(readonly value: number) {
+    super();
+  }
 
   // Create a BillingAmount from a decimal.
   // Return Error if input is not a decimal between 0.0 and 10000.00
