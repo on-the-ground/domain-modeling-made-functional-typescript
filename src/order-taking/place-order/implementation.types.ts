@@ -77,14 +77,14 @@ export type GetProductPrice = (i: Common.ProductCode) => Common.Price;
 declare const htmlString: unique symbol;
 export class HtmlString implements Wrapper<string, typeof htmlString> {
   [htmlString]: never;
-  constructor(readonly value: string) {}
+  constructor(readonly value: string) { }
 }
 
-export class OrderAcknowledgment {
+export class OrderAcknowledgement {
   constructor(
     readonly emailAddress: Common.EmailAddress,
     readonly letter: HtmlString,
-  ) {}
+  ) { }
 }
 
 export type CreateOrderAcknowledgmentLetter = (i: PricedOrder) => HtmlString;
@@ -96,13 +96,10 @@ export type CreateOrderAcknowledgmentLetter = (i: PricedOrder) => HtmlString;
 /// but on failure we won't.
 
 export const Sent = 'Sent' as const;
-export type Sent = typeof Sent;
 export const NotSent = 'NotSent' as const;
-export type NotSent = typeof NotSent;
+type SendResult = typeof Sent | typeof NotSent;
 
-type SendResult = Sent | NotSent;
-
-export type SendOrderAcknowledgment = (i: OrderAcknowledgment) => SendResult;
+export type SendOrderAcknowledgment = (i: OrderAcknowledgement) => SendResult;
 
 export type AcknowledgeOrder = (
   dep1: CreateOrderAcknowledgmentLetter,
