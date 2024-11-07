@@ -46,10 +46,10 @@ import type {
 // Product validation
 
 class InvalidFormat {
-  constructor(readonly message: string) {}
+  constructor(readonly message: string) { }
 }
 class AddressNotFound {
-  constructor(readonly message: string) {}
+  constructor(readonly message: string) { }
 }
 
 // Address validation
@@ -165,31 +165,33 @@ const toOrderQuantity = (productCode: Common.ProductCode) =>
   flow(Common.createOrderQuantity(productCode), E.mapLeft(ValidationError.from));
 
 /// Helper function for validateOrder
-const toValidatedOrderLine =
-  (checkProductCodeExists: CheckProductCodeExists) => (unvalidatedOrderLine: UnvalidatedOrderLine) =>
-    pipe(
-      E.Do,
-      E.bind('orderLineId', () => toOrderLineId(unvalidatedOrderLine.orderLineId)),
-      E.bind('productCode', () => toProductCode(checkProductCodeExists)(unvalidatedOrderLine.productCode)),
-      E.bind('quantity', ({ productCode }) => toOrderQuantity(productCode)(unvalidatedOrderLine.quantity)),
-      E.map((i) => new ValidatedOrderLine(i.orderLineId, i.productCode, i.quantity)),
-    );
-
-const validateOrder: ValidateOrder = (checkProductCodeExists, checkAddressExists) => (unvalidated) =>
-  pipe(
+const toValidatedOrderLine = (checkProductCodeExists: CheckProductCodeExists) =>
+  ({ orderLineId, productCode, quantity }: UnvalidatedOrderLine) => pipe(
     E.Do,
-    E.bind('orderId', () => toOrderId(unvalidated.orderId)),
-    E.bind('customerInfo', () => toCustomerInfo(unvalidated.customerInfo)),
-    E.bind('lines', () =>
-      pipe(unvalidated.lines, A.map(toValidatedOrderLine(checkProductCodeExists)), E.sequenceArray),
-    ),
-    TE.fromEither,
-    TE.bind('checkedShippingAddress', () => pipe(unvalidated.shippingAddress, toCheckedAddress(checkAddressExists))),
-    TE.bind('shippingAddress', ({ checkedShippingAddress }) => pipe(checkedShippingAddress, toAddress, TE.fromEither)),
-    TE.bind('checkedBillingAddress', () => pipe(unvalidated.billingAddress, toCheckedAddress(checkAddressExists))),
-    TE.bind('billingAddress', ({ checkedBillingAddress }) => pipe(checkedBillingAddress, toAddress, TE.fromEither)),
-    TE.map((i) => new ValidatedOrder(i.orderId, i.customerInfo, i.shippingAddress, i.billingAddress, i.lines)),
+    E.bind('validId', () => pipe(orderLineId, toOrderLineId)),
+    E.bind('validCode', () => pipe(productCode, toProductCode(checkProductCodeExists))),
+    E.bind('validQuantity', ({ validCode }) => pipe(quantity, toOrderQuantity(validCode))),
+    E.map((ctx) => new ValidatedOrderLine(ctx.validId, ctx.validCode, ctx.validQuantity)),
   );
+
+const validateOrder: ValidateOrder = (checkProductCodeExists, checkAddressExists) => ({
+  orderId,
+  customerInfo,
+  lines,
+  shippingAddress,
+  billingAddress,
+}: UnvalidatedOrder) => pipe(
+  E.Do,
+  E.bind('validId', () => toOrderId(orderId)),
+  E.bind('validInfo', () => toCustomerInfo(customerInfo)),
+  E.bind('validLines', () => pipe(lines, A.map(toValidatedOrderLine(checkProductCodeExists)), E.sequenceArray),),
+  TE.fromEither,
+  TE.bind('checkedShippingAddress', () => pipe(shippingAddress, toCheckedAddress(checkAddressExists))),
+  TE.bind('validShipAdr', ({ checkedShippingAddress }) => pipe(checkedShippingAddress, toAddress, TE.fromEither)),
+  TE.bind('checkedBillingAddress', () => pipe(billingAddress, toCheckedAddress(checkAddressExists))),
+  TE.bind('validBillingAdr', ({ checkedBillingAddress }) => pipe(checkedBillingAddress, toAddress, TE.fromEither)),
+  TE.map((ctx) => new ValidatedOrder(ctx.validId, ctx.validInfo, ctx.validShipAdr, ctx.validBillingAdr, ctx.validLines)),
+);
 
 // ---------------------------
 // PriceOrder step
