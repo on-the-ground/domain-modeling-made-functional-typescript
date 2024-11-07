@@ -14,7 +14,6 @@ import type {
   UnvalidatedCustomerInfo,
   UnvalidatedOrderLine,
   PlaceOrder,
-  PlaceOrderError,
 } from './public-types';
 import type {
   CheckedAddress,
@@ -86,55 +85,52 @@ export type PriceOrder = (dep: GetProductPrice) => (i: ValidatedOrder) => E.Eith
 
 const toCustomerInfo = (
   unvalidatedCustomerInfo: UnvalidatedCustomerInfo,
-): E.Either<ValidationError, Common.CustomerInfo> =>
-  pipe(
-    E.Do,
-    E.bind('firstName', () =>
-      pipe(unvalidatedCustomerInfo.firstName, Common.String50.create, E.mapLeft(ValidationError.from)),
-    ),
-    E.bind('lastName', () =>
-      pipe(unvalidatedCustomerInfo.lastName, Common.String50.create, E.mapLeft(ValidationError.from)),
-    ),
-    E.bind('emailAddress', () =>
-      pipe(unvalidatedCustomerInfo.emailAddress, Common.EmailAddress.create, E.mapLeft(ValidationError.from)),
-    ),
-    E.let('name', ({ firstName, lastName }) => new Common.PersonalName(firstName, lastName)),
-    E.map(({ name, emailAddress }) => new Common.CustomerInfo(name, emailAddress)),
-  );
+): E.Either<ValidationError, Common.CustomerInfo> => pipe(
+  E.Do,
+  E.bind('firstName', () =>
+    pipe(unvalidatedCustomerInfo.firstName, Common.String50.create, E.mapLeft(ValidationError.from)),
+  ),
+  E.bind('lastName', () =>
+    pipe(unvalidatedCustomerInfo.lastName, Common.String50.create, E.mapLeft(ValidationError.from)),
+  ),
+  E.bind('emailAddress', () =>
+    pipe(unvalidatedCustomerInfo.emailAddress, Common.EmailAddress.create, E.mapLeft(ValidationError.from)),
+  ),
+  E.let('name', ({ firstName, lastName }) => new Common.PersonalName(firstName, lastName)),
+  E.map(ctx => new Common.CustomerInfo(ctx.name, ctx.emailAddress)),
+);
 
-const toAddress = (checkedAddress: CheckedAddress): E.Either<ValidationError, Common.Address> =>
-  pipe(
-    E.Do,
-    E.bind('addressLine1', () =>
-      pipe(checkedAddress.addressLine1, Common.String50.create, E.mapLeft(ValidationError.from)),
-    ),
-    E.bind('addressLine2', () =>
-      pipe(checkedAddress.addressLine2, Common.String50.createOption, E.mapLeft(ValidationError.from)),
-    ),
-    E.bind('addressLine3', () =>
-      pipe(checkedAddress.addressLine3, Common.String50.createOption, E.mapLeft(ValidationError.from)),
-    ),
-    E.bind('addressLine4', () =>
-      pipe(checkedAddress.addressLine4, Common.String50.createOption, E.mapLeft(ValidationError.from)),
-    ),
-    E.bind('city', () => pipe(checkedAddress.city, Common.String50.create, E.mapLeft(ValidationError.from))),
-    E.bind('zipCode', () => pipe(checkedAddress.zipCode, Common.ZipCode.create, E.mapLeft(ValidationError.from))),
-    E.map((i) => new Common.Address(i.addressLine1, i.addressLine2, i.addressLine3, i.addressLine4, i.city, i.zipCode)),
-  );
+const toAddress = (checkedAddress: CheckedAddress): E.Either<ValidationError, Common.Address> => pipe(
+  E.Do,
+  E.bind('addressLine1', () =>
+    pipe(checkedAddress.addressLine1, Common.String50.create, E.mapLeft(ValidationError.from)),
+  ),
+  E.bind('addressLine2', () =>
+    pipe(checkedAddress.addressLine2, Common.String50.createOption, E.mapLeft(ValidationError.from)),
+  ),
+  E.bind('addressLine3', () =>
+    pipe(checkedAddress.addressLine3, Common.String50.createOption, E.mapLeft(ValidationError.from)),
+  ),
+  E.bind('addressLine4', () =>
+    pipe(checkedAddress.addressLine4, Common.String50.createOption, E.mapLeft(ValidationError.from)),
+  ),
+  E.bind('city', () => pipe(checkedAddress.city, Common.String50.create, E.mapLeft(ValidationError.from))),
+  E.bind('zipCode', () => pipe(checkedAddress.zipCode, Common.ZipCode.create, E.mapLeft(ValidationError.from))),
+  E.map(ctx => new Common.Address(ctx.addressLine1, ctx.addressLine2, ctx.addressLine3, ctx.addressLine4, ctx.city, ctx.zipCode)),
+);
 
 /// Call the checkAddressExists and convert the error to a ValidationError
 const toCheckedAddress = (
   checkAddress: CheckAddressExists,
-): ((address: UnvalidatedAddress) => TE.TaskEither<ValidationError, CheckedAddress>) =>
-  flow(
-    checkAddress,
-    TE.mapLeft((addrError) =>
-      match(addrError)
-        .with(P.instanceOf(AddressNotFound), () => new ValidationError('Address not found'))
-        .with(P.instanceOf(InvalidFormat), () => new ValidationError('Address has bad format'))
-        .exhaustive(),
-    ),
-  );
+): ((address: UnvalidatedAddress) => TE.TaskEither<ValidationError, CheckedAddress>) => flow(
+  checkAddress,
+  TE.mapLeft(addrError =>
+    match(addrError)
+      .with(P.instanceOf(AddressNotFound), () => new ValidationError('Address not found'))
+      .with(P.instanceOf(InvalidFormat), () => new ValidationError('Address has bad format'))
+      .exhaustive(),
+  ),
+);
 
 const toOrderId: (orderId: string) => E.Either<ValidationError, Common.OrderId> = flow(
   Common.OrderId.create,
@@ -157,12 +153,18 @@ const toProductCode = (checkProductCodeExists: CheckProductCodeExists) => {
       : E.left(new ValidationError(`Invalid: ${productCode.value}`));
 
   // assemble the pipeline
-  return flow(Common.createProductCode, E.mapLeft(ValidationError.from), E.flatMap(checkProduct));
+  return flow(
+    Common.createProductCode,
+    E.mapLeft(ValidationError.from),
+    E.flatMap(checkProduct),
+  );
 };
 
 /// Helper function for validateOrder1
-const toOrderQuantity = (productCode: Common.ProductCode) =>
-  flow(Common.createOrderQuantity(productCode), E.mapLeft(ValidationError.from));
+const toOrderQuantity = (productCode: Common.ProductCode) => flow(
+  Common.createOrderQuantity(productCode),
+  E.mapLeft(ValidationError.from),
+);
 
 /// Helper function for validateOrder
 const toValidatedOrderLine = (checkProductCodeExists: CheckProductCodeExists) =>
@@ -171,7 +173,7 @@ const toValidatedOrderLine = (checkProductCodeExists: CheckProductCodeExists) =>
     E.bind('validId', () => pipe(orderLineId, toOrderLineId)),
     E.bind('validCode', () => pipe(productCode, toProductCode(checkProductCodeExists))),
     E.bind('validQuantity', ({ validCode }) => pipe(quantity, toOrderQuantity(validCode))),
-    E.map((ctx) => new ValidatedOrderLine(ctx.validId, ctx.validCode, ctx.validQuantity)),
+    E.map(ctx => new ValidatedOrderLine(ctx.validId, ctx.validCode, ctx.validQuantity)),
   );
 
 const validateOrder: ValidateOrder = (checkProductCodeExists, checkAddressExists) => ({
@@ -190,61 +192,56 @@ const validateOrder: ValidateOrder = (checkProductCodeExists, checkAddressExists
   TE.bind('validShipAdr', ({ checkedShippingAddress }) => pipe(checkedShippingAddress, toAddress, TE.fromEither)),
   TE.bind('checkedBillingAddress', () => pipe(billingAddress, toCheckedAddress(checkAddressExists))),
   TE.bind('validBillingAdr', ({ checkedBillingAddress }) => pipe(checkedBillingAddress, toAddress, TE.fromEither)),
-  TE.map((ctx) => new ValidatedOrder(ctx.validId, ctx.validInfo, ctx.validShipAdr, ctx.validBillingAdr, ctx.validLines)),
+  TE.map(ctx => new ValidatedOrder(ctx.validId, ctx.validInfo, ctx.validShipAdr, ctx.validBillingAdr, ctx.validLines)),
 );
 
 // ---------------------------
 // PriceOrder step
 // ---------------------------
 
-const toPricedOrderLine = (getProductPrice: GetProductPrice) => (validatedOrderLine: ValidatedOrderLine) => {
-  const qty = validatedOrderLine.quantity.value;
-  const price = getProductPrice(validatedOrderLine.productCode);
-  return pipe(
-    E.Do,
-    E.bind('linePrice', () => pipe(qty, price.multiply, E.mapLeft(PricingError.from))),
-    E.map(
-      (i) =>
-        new PricedOrderLine(
-          validatedOrderLine.orderLineId,
-          validatedOrderLine.productCode,
-          validatedOrderLine.quantity,
-          i.linePrice,
-        ),
-    ),
-  );
-};
+const toPricedOrderLine = (getProductPrice: GetProductPrice) => ({
+  orderLineId,
+  productCode,
+  quantity,
+}: ValidatedOrderLine) => pipe(
+  E.Do,
+  E.bind('linePrice', () => pipe(
+    quantity.value,
+    getProductPrice(productCode).multiply,
+    E.mapLeft(PricingError.from),
+  )),
+  E.map(({ linePrice }) => new PricedOrderLine(orderLineId, productCode, quantity, linePrice)),
+);
 
-const priceOrder: PriceOrder = (getProductPrice) => (validatedOrder) =>
-  pipe(
-    E.Do,
-    E.bind('lines', () =>
-      pipe(
-        validatedOrder.lines,
-        A.map(toPricedOrderLine(getProductPrice)),
-        E.sequenceArray, // convert list of Results to a single Result
-      ),
-    ),
-    E.bind('amountToBill', ({ lines }) =>
-      pipe(
-        lines,
-        A.map((l: PricedOrderLine) => l.linePrice), // get each line price
-        Common.BillingAmount.sumPrices, // add them together as a BillingAmount
-        E.mapLeft(PricingError.from), // convert to PlaceOrderError
-      ),
-    ),
-    E.map(
-      (i) =>
-        new PricedOrder(
-          validatedOrder.orderId,
-          validatedOrder.customerInfo,
-          validatedOrder.shippingAddress,
-          validatedOrder.billingAddress,
-          i.amountToBill,
-          i.lines,
-        ),
-    ),
-  );
+
+const priceOrder: PriceOrder = (getProductPrice) => ({
+  lines,
+  orderId,
+  customerInfo,
+  shippingAddress,
+  billingAddress,
+}: ValidatedOrder) => pipe(
+  E.Do,
+  E.bind('pricedLines', () => pipe(
+    lines,
+    A.map(toPricedOrderLine(getProductPrice)),
+    E.sequenceArray, // convert list of Results to a single Result
+  )),
+  E.bind('amountToBill', ({ pricedLines }) => pipe(
+    pricedLines,
+    A.map(l => l.linePrice), // get each line price
+    Common.BillingAmount.sumPrices, // add them together as a BillingAmount
+    E.mapLeft(PricingError.from), // convert to PlaceOrderError
+  )),
+  E.map(ctx => new PricedOrder(
+    orderId,
+    customerInfo,
+    shippingAddress,
+    billingAddress,
+    ctx.amountToBill,
+    ctx.pricedLines,
+  )),
+);
 
 // ---------------------------
 // overall workflow
@@ -256,9 +253,8 @@ export const placeOrder = (
   getPrice: GetProductPrice, // dependency
   createAck: CreateOrderAcknowledgmentLetter, // dependency
   sendAck: SendOrderAcknowledgment, // dependency
-): PlaceOrder =>
-  flow(
-    validateOrder(checkCode, checkAddress),
-    TE.flatMap(TE.fromEitherK(priceOrder(getPrice))),
-    TE.map(placeOrderEvents(createAck, sendAck)),
-  );
+): PlaceOrder => flow(
+  validateOrder(checkCode, checkAddress),
+  TE.flatMap(TE.fromEitherK(priceOrder(getPrice))),
+  TE.map(placeOrderEvents(createAck, sendAck)),
+);

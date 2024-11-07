@@ -171,13 +171,13 @@ const toAddress = (checkAddressExists: CheckAddressExists) => (unvalidatedAddres
 /// Function adapter to convert a predicate to a passthru
 const predicateToPassthru =
   <T>(errMsg: string, f: (i: T) => boolean) =>
-  (x: T): T => {
-    if (f(x)) {
-      return x;
-    } else {
-      throw Error(errMsg);
-    }
-  };
+    (x: T): T => {
+      if (f(x)) {
+        return x;
+      } else {
+        throw Error(errMsg);
+      }
+    };
 
 /// Helper function for validateOrder
 const toProductCode = (checkProductCodeExists: CheckProductCodeExists) => (productCode: string) => {
@@ -197,7 +197,7 @@ const toValidatedOrderLine =
     return new ValidatedOrderLine(orderLineId, productCode, quantity);
   };
 
-const validateOrder: ValidateOrder = (checkProductCodeExists, checkAddressExists) => (unvalidatedOrder) => {
+const validateOrder: ValidateOrder = (checkProductCodeExists, checkAddressExists) => unvalidatedOrder => {
   const orderId = OrderId.create(unvalidatedOrder.orderId);
   const customerInfo = toCustomerInfo(unvalidatedOrder.customerInfo);
   const shippingAddress = toAddress(checkAddressExists)(unvalidatedOrder.shippingAddress);
@@ -222,11 +222,11 @@ const toPricedOrderLine = (getProductPrice: GetProductPrice) => (validatedOrderL
   );
 };
 
-const priceOrder: PriceOrder = (getProductPrice) => (validatedOrder) => {
+const priceOrder: PriceOrder = getProductPrice => validatedOrder => {
   const lines = pipe(validatedOrder.lines, A.map(toPricedOrderLine(getProductPrice)));
   const amountToBill = pipe(
     lines,
-    A.map((l) => l.linePrice), // get each line price
+    A.map(l => l.linePrice), // get each line price
     BillingAmount.sumPrices, // add them together as a BillingAmount
   );
   return new PricedOrder(
@@ -249,5 +249,8 @@ const placeOrder = (
   getPrice: GetProductPrice, // dependency
   createAck: CreateOrderAcknowledgmentLetter, // dependency
   sendAck: SendOrderAcknowledgment, // dependency
-): PlaceOrderWithoutEffects => // definition of function
-  flow(validateOrder(checkCode, checkAddress), priceOrder(getPrice), placeOrderEvents(createAck, sendAck));
+): PlaceOrderWithoutEffects => flow(
+  validateOrder(checkCode, checkAddress),
+  priceOrder(getPrice),
+  placeOrderEvents(createAck, sendAck),
+);

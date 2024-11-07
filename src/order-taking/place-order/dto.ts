@@ -65,7 +65,7 @@ export class CustomerInfoDto {
       E.bind('email', () => Common.EmailAddress.create(dto.emailAddress)),
       // combine the components to create the domain object
       E.let('name', ({ first, last }) => new Common.PersonalName(first, last)),
-      E.map(({ name, email }) => new Common.CustomerInfo(name, email)),
+      E.map(ctx => new Common.CustomerInfo(ctx.name, ctx.email)),
     );
   }
 
@@ -123,9 +123,14 @@ export class AddressDto {
       E.bind('city', () => Common.String50.create(dto.city)),
       E.bind('zipCode', () => Common.ZipCode.create(dto.zipCode)),
       // combine the components to create the domain object
-      E.map(
-        (i) => new Common.Address(i.addressLine1, i.addressLine2, i.addressLine3, i.addressLine4, i.city, i.zipCode),
-      ),
+      E.map(ctx => new Common.Address(
+        ctx.addressLine1,
+        ctx.addressLine2,
+        ctx.addressLine3,
+        ctx.addressLine4,
+        ctx.city,
+        ctx.zipCode,
+      )),
     );
   }
 
@@ -139,17 +144,17 @@ export class AddressDto {
       domainObj.zipCode.value,
       pipe(
         domainObj.addressLine2,
-        O.map((i) => i.value),
+        O.map(i => i.value),
         O.toNullable,
       ),
       pipe(
         domainObj.addressLine3,
-        O.map((i) => i.value),
+        O.map(i => i.value),
         O.toNullable,
       ),
       pipe(
         domainObj.addressLine4,
-        O.map((i) => i.value),
+        O.map(i => i.value),
         O.toNullable,
       ),
     );
@@ -312,15 +317,12 @@ export type PlaceOrderEventDto = Map<string, Object>;
 export const placeOrderEventDtoFromDomain = (domainObj: PlaceOrderEvent): PlaceOrderEventDto =>
   pipe(
     match(domainObj)
-      .with(P.instanceOf(OrderPlaced), (i) => ['OrderPlaced', OrderPlacedDto.fromDomain(i)] as const)
-      .with(
-        P.instanceOf(BillableOrderPlaced),
-        (i) => ['BillableOrderPlaced', BillableOrderPlacedDto.fromDomain(i)] as const,
-      )
-      .with(
-        P.instanceOf(OrderAcknowledgmentSent),
-        (i) => ['OrderAcknowledgmentSent', OrderAcknowledgmentSentDto.fromDomain(i)] as const,
-      )
+      .with(P.instanceOf(OrderPlaced), i =>
+        ['OrderPlaced', OrderPlacedDto.fromDomain(i)] as const)
+      .with(P.instanceOf(BillableOrderPlaced), i =>
+        ['BillableOrderPlaced', BillableOrderPlacedDto.fromDomain(i)] as const)
+      .with(P.instanceOf(OrderAcknowledgmentSent), i =>
+        ['OrderAcknowledgmentSent', OrderAcknowledgmentSentDto.fromDomain(i)] as const,)
       .exhaustive(),
     (kvPair: readonly [string, Object]) => new Map([kvPair]),
   );
@@ -337,12 +339,10 @@ export class PlaceOrderErrorDto {
 
   static fromDomain(domainObj: PlaceOrderError): PlaceOrderErrorDto {
     return match(domainObj)
-      .with(P.instanceOf(ValidationError), (err) => new PlaceOrderErrorDto('ValidationError', err.message))
-      .with(P.instanceOf(PricingError), (err) => new PlaceOrderErrorDto('PricingError', err.message))
-      .with(
-        P.instanceOf(RemoteServiceError),
-        (err) => new PlaceOrderErrorDto('RemoveServiceError', `${err.service.name}: ${err.exception.message}`),
-      )
+      .with(P.instanceOf(ValidationError), err => new PlaceOrderErrorDto('ValidationError', err.message))
+      .with(P.instanceOf(PricingError), err => new PlaceOrderErrorDto('PricingError', err.message))
+      .with(P.instanceOf(RemoteServiceError), err =>
+        new PlaceOrderErrorDto('RemoveServiceError', `${err.service.name}: ${err.exception.message}`))
       .exhaustive();
   }
 }

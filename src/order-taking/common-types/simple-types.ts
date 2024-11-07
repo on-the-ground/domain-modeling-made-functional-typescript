@@ -171,7 +171,7 @@ export class Price extends ValueObject implements Wrapper<number, typeof price> 
   // Throw an exception if out of bounds. This should only be used if you know the value is valid.
   static unsafeCreate: (v: number) => Price = flow(
     this.create,
-    E.getOrElse((err) => {
+    E.getOrElse(err => {
       throw 'Not expecting Price to be out of bounds: ' + err;
     }),
   );
@@ -200,10 +200,10 @@ export class BillingAmount extends ValueObject implements Wrapper<number, typeof
     pipe(
       A.isNonEmpty(prices)
         ? pipe(
-            prices,
-            NA.map((p) => p.value),
-            NA.concatAll(N.SemigroupSum),
-          )
+          prices,
+          NA.map(p => p.value),
+          NA.concatAll(N.SemigroupSum),
+        )
         : 0,
       this.create,
     );

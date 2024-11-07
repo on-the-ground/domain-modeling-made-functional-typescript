@@ -28,9 +28,9 @@ export abstract class Entity implements Equatable {
   equals(obj: unknown): boolean {
     return this.isSameClass(obj)
       ? match(this.id)
-          .with(RawIdPattern, (id) => id === obj.id)
-          .with(WrapperIdPattern, (id) => id.equals(obj.id))
-          .exhaustive()
+        .with(RawIdPattern, id => id === obj.id)
+        .with(WrapperIdPattern, id => id.equals(obj.id))
+        .exhaustive()
       : false;
   }
 }

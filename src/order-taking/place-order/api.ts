@@ -31,7 +31,7 @@ class HttpRequest {
     readonly action: string,
     readonly uri: string,
     readonly body: JsonString,
-  ) {}
+  ) { }
 }
 
 /// Very simplified version!
@@ -39,7 +39,7 @@ class HttpResponse {
   constructor(
     readonly httpStatusCode: number,
     readonly body: JsonString,
-  ) {}
+  ) { }
 }
 
 /// An API takes a HttpRequest as input and returns a async response
@@ -51,16 +51,16 @@ type PlaceOrderApi = (i: HttpRequest) => Promise<HttpResponse>;
 
 // setup dummy dependencies
 
-export const checkProductExists: CheckProductCodeExists = (productCode) => true; // dummy implementation
+export const checkProductExists: CheckProductCodeExists = productCode => true; // dummy implementation
 
 export const checkAddressExists: Implementation.CheckAddressExists = flow(CheckedAddress, E.right, TE.fromEither);
 
-export const getProductPrice: GetProductPrice = (productCode) => Price.unsafeCreate(1); // dummy implementation
+export const getProductPrice: GetProductPrice = productCode => Price.unsafeCreate(1); // dummy implementation
 
-export const createOrderAcknowledgmentLetter: CreateOrderAcknowledgmentLetter = (pricedOrder) =>
+export const createOrderAcknowledgmentLetter: CreateOrderAcknowledgmentLetter = pricedOrder =>
   new HtmlString('some text'); // dummy implementation
 
-export const sendOrderAcknowledgment: SendOrderAcknowledgment = (orderAcknowledgement) => Sent;
+export const sendOrderAcknowledgment: SendOrderAcknowledgment = orderAcknowledgement => Sent;
 
 // -------------------------------
 // workflow
@@ -69,9 +69,8 @@ export const sendOrderAcknowledgment: SendOrderAcknowledgment = (orderAcknowledg
 /// This function converts the workflow output into a HttpResponse
 export const workflowResultToHttpReponse: (result: E.Either<PlaceOrderError, PlaceOrderEvent[]>) => HttpResponse =
   E.fold(
-    (err) => pipe(err, PlaceOrderErrorDto.fromDomain, JSON.stringify, (json) => new HttpResponse(401, json)),
-    (events) =>
-      pipe(events, A.map(placeOrderEventDtoFromDomain), JSON.stringify, (json) => new HttpResponse(200, json)),
+    flow(PlaceOrderErrorDto.fromDomain, JSON.stringify, json => new HttpResponse(401, json)),
+    flow(A.map(placeOrderEventDtoFromDomain), JSON.stringify, json => new HttpResponse(200, json)),
   );
 
 export const placeOrderApi: PlaceOrderApi = (request: HttpRequest) => {
@@ -79,8 +78,10 @@ export const placeOrderApi: PlaceOrderApi = (request: HttpRequest) => {
 
   // start with a string
   const orderFormJson = request.body;
-  const orderForm: OrderFormDto = pipe(orderFormJson, JSON.parse, (obj) =>
-    Object.setPrototypeOf(obj, OrderFormDto.prototype),
+  const orderForm: OrderFormDto = pipe(
+    orderFormJson,
+    JSON.parse,
+    obj => Object.setPrototypeOf(obj, OrderFormDto.prototype),
   );
 
   // convert to domain object

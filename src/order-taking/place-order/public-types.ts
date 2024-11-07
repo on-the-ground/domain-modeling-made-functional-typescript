@@ -19,7 +19,7 @@ export class UnvalidatedCustomerInfo {
     readonly firstName: string,
     readonly lastName: string,
     readonly emailAddress: string,
-  ) {}
+  ) { }
 }
 
 export class UnvalidatedAddress {
@@ -30,7 +30,7 @@ export class UnvalidatedAddress {
     readonly addressLine2?: string,
     readonly addressLine3?: string,
     readonly addressLine4?: string,
-  ) {}
+  ) { }
 }
 
 export class UnvalidatedOrderLine {
@@ -38,7 +38,7 @@ export class UnvalidatedOrderLine {
     readonly orderLineId: string,
     readonly productCode: string,
     readonly quantity: number,
-  ) {}
+  ) { }
 }
 
 export class UnvalidatedOrder {
@@ -48,7 +48,7 @@ export class UnvalidatedOrder {
     readonly shippingAddress: UnvalidatedAddress,
     readonly billingAddress: UnvalidatedAddress,
     readonly lines: UnvalidatedOrderLine[],
-  ) {}
+  ) { }
 }
 
 // ------------------------------------
@@ -59,7 +59,7 @@ export class OrderAcknowledgmentSent {
   constructor(
     readonly orderId: Common.OrderId,
     readonly emailAddress: Common.EmailAddress,
-  ) {}
+  ) { }
 }
 
 // priced state
@@ -112,7 +112,7 @@ export class OrderPlaced {
     readonly billingAddress: Common.Address,
     readonly amountToBill: Common.BillingAmount,
     readonly lines: readonly PricedOrderLine[],
-  ) {}
+  ) { }
 }
 
 /// Event to send to billing context
@@ -122,7 +122,7 @@ export class BillableOrderPlaced {
     readonly orderId: Common.OrderId,
     readonly billingAddress: Common.Address,
     readonly amountToBill: Common.BillingAmount,
-  ) {}
+  ) { }
 }
 
 /// The possible events resulting from the PlaceOrder workflow
@@ -161,14 +161,14 @@ export class ServiceInfo {
   constructor(
     readonly name: string,
     readonly endpoint: URL,
-  ) {}
+  ) { }
 }
 
 export class RemoteServiceError {
   constructor(
     readonly service: ServiceInfo,
     readonly exception: Error,
-  ) {}
+  ) { }
 }
 
 export type PlaceOrderError = ValidationError | PricingError | RemoteServiceError;
