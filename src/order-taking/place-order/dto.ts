@@ -42,7 +42,7 @@ export class CustomerInfoDto {
     readonly firstName: string,
     readonly lastName: string,
     readonly emailAddress: string,
-  ) {}
+  ) { }
   /// Convert the DTO into a UnvalidatedCustomerInfo object.
   /// This always succeeds because there is no validation.
   /// Used when importing an OrderForm from the outside world into the domain.
@@ -64,7 +64,7 @@ export class CustomerInfoDto {
       E.bind('last', () => Common.String50.create(dto.lastName)),
       E.bind('email', () => Common.EmailAddress.create(dto.emailAddress)),
       // combine the components to create the domain object
-      E.bind('name', ({ first, last }) => E.right(new Common.PersonalName(first, last))),
+      E.let('name', ({ first, last }) => new Common.PersonalName(first, last)),
       E.map(({ name, email }) => new Common.CustomerInfo(name, email)),
     );
   }
@@ -93,7 +93,7 @@ export class AddressDto {
     readonly addressLine2?: string,
     readonly addressLine3?: string,
     readonly addressLine4?: string,
-  ) {}
+  ) { }
 
   /// Convert the DTO into a UnvalidatedAddress
   /// This always succeeds because there is no validation.
@@ -166,7 +166,7 @@ export class OrderFormLineDto {
     readonly orderLineId: string,
     readonly productCode: string,
     readonly quantity: number,
-  ) {}
+  ) { }
 
   /// Convert the OrderFormLine into a UnvalidatedOrderLine
   /// This always succeeds because there is no validation.
@@ -188,7 +188,7 @@ export class PricedOrderLineDto {
     readonly productCode: string,
     readonly quantity: number,
     readonly linePrice: number,
-  ) {}
+  ) { }
 
   /// Convert a PricedOrderLine object into the corresponding DTO.
   /// Used when exporting from the domain to the outside world.
@@ -214,7 +214,7 @@ export class OrderFormDto {
     readonly shippingAddress: AddressDto,
     readonly billingAddress: AddressDto,
     readonly lines: OrderFormLineDto[],
-  ) {}
+  ) { }
 
   /// Convert the OrderForm into a UnvalidatedOrder
   /// This always succeeds because there is no validation.
@@ -242,7 +242,7 @@ export class OrderPlacedDto {
     readonly billingAddress: AddressDto,
     readonly amountToBill: number,
     readonly lines: PricedOrderLineDto[],
-  ) {}
+  ) { }
 
   /// Convert a OrderPlaced object into the corresponding DTO.
   /// Used when exporting from the domain to the outside world.
@@ -268,7 +268,7 @@ export class BillableOrderPlacedDto {
     readonly orderId: string,
     readonly billingAddress: AddressDto,
     readonly amountToBill: number,
-  ) {}
+  ) { }
 
   /// Convert a BillableOrderPlaced object into the corresponding DTO.
   /// Used when exporting from the domain to the outside world.
@@ -290,7 +290,7 @@ export class OrderAcknowledgmentSentDto {
   constructor(
     readonly orderId: string,
     readonly emailAddress: string,
-  ) {}
+  ) { }
 
   /// Convert a OrderAcknowledgmentSent object into the corresponding DTO.
   /// Used when exporting from the domain to the outside world.
@@ -333,7 +333,7 @@ export class PlaceOrderErrorDto {
   constructor(
     readonly code: string,
     readonly message: string,
-  ) {}
+  ) { }
 
   static fromDomain(domainObj: PlaceOrderError): PlaceOrderErrorDto {
     return match(domainObj)

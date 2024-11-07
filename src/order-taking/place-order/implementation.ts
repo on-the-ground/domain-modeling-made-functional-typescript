@@ -98,7 +98,7 @@ const toCustomerInfo = (
     E.bind('emailAddress', () =>
       pipe(unvalidatedCustomerInfo.emailAddress, Common.EmailAddress.create, E.mapLeft(ValidationError.from)),
     ),
-    E.bind('name', ({ firstName, lastName }) => E.right(new Common.PersonalName(firstName, lastName))),
+    E.let('name', ({ firstName, lastName }) => new Common.PersonalName(firstName, lastName)),
     E.map(({ name, emailAddress }) => new Common.CustomerInfo(name, emailAddress)),
   );
 
@@ -259,6 +259,6 @@ export const placeOrder = (
 ): PlaceOrder =>
   flow(
     validateOrder(checkCode, checkAddress),
-    TE.chain<PlaceOrderError, ValidatedOrder, PricedOrder>(TE.fromEitherK(priceOrder(getPrice))),
+    TE.flatMap(TE.fromEitherK(priceOrder(getPrice))),
     TE.map(placeOrderEvents(createAck, sendAck)),
   );
