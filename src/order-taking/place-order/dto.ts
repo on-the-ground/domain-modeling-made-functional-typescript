@@ -65,7 +65,7 @@ export class CustomerInfoDto {
       E.bind('email', () => Common.EmailAddress.create(dto.emailAddress)),
       // combine the components to create the domain object
       E.let('name', ({ first, last }) => new Common.PersonalName(first, last)),
-      E.map(ctx => new Common.CustomerInfo(ctx.name, ctx.email)),
+      E.map(scope => new Common.CustomerInfo(scope.name, scope.email)),
     );
   }
 
@@ -123,13 +123,13 @@ export class AddressDto {
       E.bind('city', () => Common.String50.create(dto.city)),
       E.bind('zipCode', () => Common.ZipCode.create(dto.zipCode)),
       // combine the components to create the domain object
-      E.map(ctx => new Common.Address(
-        ctx.addressLine1,
-        ctx.addressLine2,
-        ctx.addressLine3,
-        ctx.addressLine4,
-        ctx.city,
-        ctx.zipCode,
+      E.map(scope => new Common.Address(
+        scope.addressLine1,
+        scope.addressLine2,
+        scope.addressLine3,
+        scope.addressLine4,
+        scope.city,
+        scope.zipCode,
       )),
     );
   }

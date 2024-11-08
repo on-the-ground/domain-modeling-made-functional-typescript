@@ -97,7 +97,7 @@ const toCustomerInfo = (
     pipe(unvalidatedCustomerInfo.emailAddress, Common.EmailAddress.create, E.mapLeft(ValidationError.from)),
   ),
   E.let('name', ({ firstName, lastName }) => new Common.PersonalName(firstName, lastName)),
-  E.map(ctx => new Common.CustomerInfo(ctx.name, ctx.emailAddress)),
+  E.map(scope => new Common.CustomerInfo(scope.name, scope.emailAddress)),
 );
 
 const toAddress = (checkedAddress: CheckedAddress): E.Either<ValidationError, Common.Address> => pipe(
@@ -116,7 +116,7 @@ const toAddress = (checkedAddress: CheckedAddress): E.Either<ValidationError, Co
   ),
   E.bind('city', () => pipe(checkedAddress.city, Common.String50.create, E.mapLeft(ValidationError.from))),
   E.bind('zipCode', () => pipe(checkedAddress.zipCode, Common.ZipCode.create, E.mapLeft(ValidationError.from))),
-  E.map(ctx => new Common.Address(ctx.addressLine1, ctx.addressLine2, ctx.addressLine3, ctx.addressLine4, ctx.city, ctx.zipCode)),
+  E.map(scope => new Common.Address(scope.addressLine1, scope.addressLine2, scope.addressLine3, scope.addressLine4, scope.city, scope.zipCode)),
 );
 
 /// Call the checkAddressExists and convert the error to a ValidationError
@@ -167,14 +167,17 @@ const toOrderQuantity = (productCode: Common.ProductCode) => flow(
 );
 
 /// Helper function for validateOrder
-const toValidatedOrderLine = (checkProductCodeExists: CheckProductCodeExists) =>
-  ({ orderLineId, productCode, quantity }: UnvalidatedOrderLine) => pipe(
-    E.Do,
-    E.bind('validId', () => pipe(orderLineId, toOrderLineId)),
-    E.bind('validCode', () => pipe(productCode, toProductCode(checkProductCodeExists))),
-    E.bind('validQuantity', ({ validCode }) => pipe(quantity, toOrderQuantity(validCode))),
-    E.map(ctx => new ValidatedOrderLine(ctx.validId, ctx.validCode, ctx.validQuantity)),
-  );
+const toValidatedOrderLine = (checkProductCodeExists: CheckProductCodeExists) => ({
+  orderLineId,
+  productCode,
+  quantity,
+}: UnvalidatedOrderLine) => pipe(
+  E.Do,
+  E.bind('validId', () => pipe(orderLineId, toOrderLineId)),
+  E.bind('validCode', () => pipe(productCode, toProductCode(checkProductCodeExists))),
+  E.bind('validQuantity', ({ validCode }) => pipe(quantity, toOrderQuantity(validCode))),
+  E.map(scope => new ValidatedOrderLine(scope.validId, scope.validCode, scope.validQuantity)),
+);
 
 const validateOrder: ValidateOrder = (checkProductCodeExists, checkAddressExists) => ({
   orderId,
@@ -192,7 +195,7 @@ const validateOrder: ValidateOrder = (checkProductCodeExists, checkAddressExists
   TE.bind('validShipAdr', ({ checkedShippingAddress }) => pipe(checkedShippingAddress, toAddress, TE.fromEither)),
   TE.bind('checkedBillingAddress', () => pipe(billingAddress, toCheckedAddress(checkAddressExists))),
   TE.bind('validBillingAdr', ({ checkedBillingAddress }) => pipe(checkedBillingAddress, toAddress, TE.fromEither)),
-  TE.map(ctx => new ValidatedOrder(ctx.validId, ctx.validInfo, ctx.validShipAdr, ctx.validBillingAdr, ctx.validLines)),
+  TE.map(scope => new ValidatedOrder(scope.validId, scope.validInfo, scope.validShipAdr, scope.validBillingAdr, scope.validLines)),
 );
 
 // ---------------------------
@@ -233,13 +236,13 @@ const priceOrder: PriceOrder = (getProductPrice) => ({
     Common.BillingAmount.sumPrices, // add them together as a BillingAmount
     E.mapLeft(PricingError.from), // convert to PlaceOrderError
   )),
-  E.map(ctx => new PricedOrder(
+  E.map(scope => new PricedOrder(
     orderId,
     customerInfo,
     shippingAddress,
     billingAddress,
-    ctx.amountToBill,
-    ctx.pricedLines,
+    scope.amountToBill,
+    scope.pricedLines,
   )),
 );
 
