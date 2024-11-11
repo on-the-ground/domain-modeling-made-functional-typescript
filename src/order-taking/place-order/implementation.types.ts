@@ -39,6 +39,7 @@ export class ValidatedOrderLine extends Entity {
     return obj instanceof ValidatedOrderLine;
   }
 
+  @bound
   get id(): Common.OrderLineId {
     return this.orderLineId;
   }
@@ -59,6 +60,7 @@ export class ValidatedOrder extends Entity {
     return obj instanceof ValidatedOrder;
   }
 
+  @bound
   get id(): Common.OrderId {
     return this.orderId;
   }

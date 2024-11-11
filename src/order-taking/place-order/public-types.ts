@@ -77,6 +77,7 @@ export class PricedOrderLine extends Entity {
     return obj instanceof PricedOrderLine;
   }
 
+  @bound
   get id(): Common.OrderLineId {
     return this.orderLineId;
   }
@@ -98,6 +99,7 @@ export class PricedOrder extends Entity {
     return obj instanceof PricedOrder;
   }
 
+  @bound
   get id(): Common.OrderId {
     return this.orderId;
   }

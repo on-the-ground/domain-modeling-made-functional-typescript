@@ -25,6 +25,7 @@ export abstract class Entity implements Equatable {
   abstract readonly id: RawId | WrapperId;
   abstract isSameClass<T extends Entity>(obj: unknown): obj is T;
 
+  @bound
   equals(obj: unknown): boolean {
     return this.isSameClass(obj)
       ? match(this.id)
