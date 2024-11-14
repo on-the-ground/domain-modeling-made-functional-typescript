@@ -41,7 +41,7 @@ export const createBillingEvent: (i: PricedOrder) => O.Option<BillableOrderPlace
 
 
 /// helper to convert an Option into a List
-export const optionToList: <T>(opt: O.Option<T>) => Array<T> = O.fold(
+export const optionToList: <T>(opt: O.Option<T>) => Array<T> = O.match(
   () => [],
   x => [x],
 );

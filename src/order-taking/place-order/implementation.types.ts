@@ -21,7 +21,7 @@ export type CheckProductCodeExists = (i: Common.ProductCode) => boolean;
 // Address validation
 declare const checkedAddress: unique symbol;
 export type CheckedAddress = PhantomBrand<UnvalidatedAddress, typeof checkedAddress>;
-export const CheckedAddress = (i: UnvalidatedAddress) => i as CheckedAddress;
+export const createCheckedAddress = (i: UnvalidatedAddress) => i as CheckedAddress;
 
 // ---------------------------
 // Validated Order
