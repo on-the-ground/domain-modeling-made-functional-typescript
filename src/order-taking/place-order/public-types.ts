@@ -2,12 +2,12 @@
 // rather than a module at the top level
 // namespace OrderTaking.PlaceOrder
 
+import * as O from 'fp-ts/Option';
 import { TaskEither } from 'fp-ts/TaskEither';
-
-import * as O from 'fp-ts/Option'
-import type * as Common from '../common-types';
-import { Entity } from '../../libs/model-type';
 import { bound } from '../../libs/decorator';
+import { Entity } from '../../libs/model-type';
+
+import type * as Common from '../common-types';
 // ==================================
 // This file contains the definitions of PUBLIC types (exposed at the boundary of the bounded context)
 // related to the PlaceOrder workflow

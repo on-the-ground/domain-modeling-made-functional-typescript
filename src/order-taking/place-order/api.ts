@@ -14,13 +14,14 @@ import * as TE from 'fp-ts/TaskEither';
 import { Price } from '../common-types';
 import { OrderFormDto, PlaceOrderErrorDto, placeOrderEventDtoFromDomain } from './dto';
 import * as Implementation from './implementation';
+import { CheckedAddress, HtmlString, Sent } from './implementation.types';
+
 import type {
   CheckProductCodeExists,
   CreateOrderAcknowledgmentLetter,
   GetProductPrice,
   SendOrderAcknowledgment,
 } from './implementation.types';
-import { CheckedAddress, HtmlString, Sent } from './implementation.types';
 import type { PlaceOrderError, PlaceOrderEvent } from './public-types';
 
 type JsonString = string;

@@ -4,9 +4,16 @@ import * as O from 'fp-ts/Option';
 import { flow, pipe } from 'fp-ts/function';
 import * as Common from '../common-types';
 import { placeOrderEvents } from './implementation.common';
-import { PricedOrder, PricedOrderLine } from './public-types';
 import { ValidatedOrder, ValidatedOrderLine } from './implementation.types';
+import { PricedOrder, PricedOrderLine } from './public-types';
 
+import type {
+  CheckedAddress,
+  CheckProductCodeExists,
+  CreateOrderAcknowledgmentLetter,
+  GetProductPrice,
+  SendOrderAcknowledgment,
+} from './implementation.types';
 import type {
   PlaceOrderEvent,
   UnvalidatedAddress,
@@ -14,13 +21,6 @@ import type {
   UnvalidatedOrder,
   UnvalidatedOrderLine,
 } from './public-types';
-import type {
-  CheckedAddress,
-  CheckProductCodeExists,
-  GetProductPrice,
-  CreateOrderAcknowledgmentLetter,
-  SendOrderAcknowledgment,
-} from './implementation.types';
 
 // ======================================================
 // This file contains the implementation for the PlaceOrder workflow

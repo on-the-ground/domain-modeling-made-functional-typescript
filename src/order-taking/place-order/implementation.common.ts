@@ -1,8 +1,8 @@
+import { pipe } from 'fp-ts/function';
 import * as O from 'fp-ts/Option';
 import { match } from 'ts-pattern';
-import { pipe } from 'fp-ts/function';
-import { OrderAcknowledgement, Sent, NotSent } from './implementation.types';
-import { OrderAcknowledgmentSent, OrderPlaced, BillableOrderPlaced } from './public-types';
+import { NotSent, OrderAcknowledgement, Sent } from './implementation.types';
+import { BillableOrderPlaced, OrderAcknowledgmentSent, OrderPlaced } from './public-types';
 
 import type {
   AcknowledgeOrder,
@@ -10,7 +10,7 @@ import type {
   CreateOrderAcknowledgmentLetter,
   SendOrderAcknowledgment,
 } from './implementation.types';
-import type { PricedOrder, PlaceOrderEvent } from './public-types';
+import type { PlaceOrderEvent, PricedOrder } from './public-types';
 
 // ---------------------------
 // AcknowledgeOrder step

@@ -7,28 +7,28 @@
 // and then there are `toDomain` and `fromDomain` functions defined for each DTO.
 //
 // ======================================================
-import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
-import * as Common from '../common-types';
+import * as O from 'fp-ts/Option';
 import * as RA from 'fp-ts/ReadonlyArray';
 import { pipe } from 'fp-ts/function';
 import { match, P } from 'ts-pattern';
+import { bound } from '../../libs/decorator';
+import * as Common from '../common-types';
 import {
-  UnvalidatedCustomerInfo,
-  UnvalidatedAddress,
-  UnvalidatedOrderLine,
-  PricedOrderLine,
-  UnvalidatedOrder,
-  OrderPlaced,
   BillableOrderPlaced,
   OrderAcknowledgmentSent,
-  PlaceOrderEvent,
+  OrderPlaced,
   PlaceOrderError,
-  ValidationError,
+  PlaceOrderEvent,
+  PricedOrderLine,
   PricingError,
   RemoteServiceError,
+  UnvalidatedAddress,
+  UnvalidatedCustomerInfo,
+  UnvalidatedOrder,
+  UnvalidatedOrderLine,
+  ValidationError,
 } from './public-types';
-import { bound } from '../../libs/decorator';
 
 // ==================================
 // DTOs for PlaceOrder workflow

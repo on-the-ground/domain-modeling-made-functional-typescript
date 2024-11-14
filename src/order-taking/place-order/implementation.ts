@@ -1,28 +1,28 @@
 import * as A from 'fp-ts/Array';
 import * as E from 'fp-ts/Either';
-import * as O from 'fp-ts/Option';
 import { flow, pipe } from 'fp-ts/function';
+import * as O from 'fp-ts/Option';
 import * as TE from 'fp-ts/TaskEither';
 import { match, P } from 'ts-pattern';
 import * as Common from '../common-types';
 import { placeOrderEvents } from './implementation.common';
-import { ValidationError, PricingError, PricedOrder, PricedOrderLine } from './public-types';
 import { ValidatedOrder, ValidatedOrderLine } from './implementation.types';
+import { PricedOrder, PricedOrderLine, PricingError, ValidationError } from './public-types';
 
-import type {
-  UnvalidatedAddress,
-  UnvalidatedOrder,
-  UnvalidatedCustomerInfo,
-  UnvalidatedOrderLine,
-  PlaceOrder,
-} from './public-types';
 import type {
   CheckedAddress,
   CheckProductCodeExists,
-  GetProductPrice,
   CreateOrderAcknowledgmentLetter,
+  GetProductPrice,
   SendOrderAcknowledgment,
 } from './implementation.types';
+import type {
+  PlaceOrder,
+  UnvalidatedAddress,
+  UnvalidatedCustomerInfo,
+  UnvalidatedOrder,
+  UnvalidatedOrderLine,
+} from './public-types';
 
 // ======================================================
 // This file contains the final implementation for the PlaceOrder workflow

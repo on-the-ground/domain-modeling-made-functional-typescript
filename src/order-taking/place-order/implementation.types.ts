@@ -1,10 +1,10 @@
 import { Option } from 'fp-ts/Option';
 import { PhantomBrand, Wrapper } from '../../libs/brand';
-import { Entity } from '../../libs/model-type';
 import { bound } from '../../libs/decorator';
+import { Entity } from '../../libs/model-type';
 
 import type * as Common from '../common-types';
-import type { UnvalidatedAddress, PricedOrder, OrderAcknowledgmentSent, PlaceOrderEvent } from './public-types';
+import type { OrderAcknowledgmentSent, PlaceOrderEvent, PricedOrder, UnvalidatedAddress } from './public-types';
 
 // ======================================================
 // Section 1 : Define each step in the workflow using types

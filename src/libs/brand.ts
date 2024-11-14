@@ -1,4 +1,4 @@
-import { Primitives } from 'ts-pattern/dist/types/helpers';
+import type { Primitives } from 'ts-pattern/dist/types/helpers';
 
 type Brand<S extends symbol> = { [k in S]: never };
 export type Wrapper<T extends Primitives, S extends symbol> = Brand<S> & { readonly value: T };
