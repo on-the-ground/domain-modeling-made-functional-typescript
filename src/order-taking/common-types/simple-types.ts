@@ -9,6 +9,7 @@ import { Wrapper } from '../../libs/brand';
 import * as ConstrainedType from './constrained-type';
 import { errorFrom } from '../../libs/error';
 import { ValueObject } from '../../libs/model-type';
+import { bound } from '../../libs/decorator';
 
 // ===============================
 // Simple types and constrained types related to the OrderTaking domain.
@@ -18,7 +19,7 @@ import { ValueObject } from '../../libs/model-type';
 
 // Constrained to be 50 chars or less, not null
 export class String50 extends ValueObject implements Wrapper<string, typeof string50> {
-  [string50]: never;
+  [string50]: never = undefined as never;
   constructor(readonly value: string) {
     super();
   }
@@ -30,15 +31,15 @@ export class String50 extends ValueObject implements Wrapper<string, typeof stri
   // Return None if input is null, empty.
   // Return error if length > maxLen
   // Return Some if the input is valid
-  static createOption: (s: string) => E.Either<Error, O.Option<String50>> = ConstrainedType.createStringOption(
-    String50,
-    50,
-  );
+  // static createOption: (s: string) => E.Either<Error, O.Option<String50>> = ConstrainedType.createStringOption(
+  //   String50,
+  //   50,
+  // );
 }
 
 // An email address
 export class EmailAddress extends ValueObject implements Wrapper<string, typeof emailAddress> {
-  [emailAddress]: never;
+  [emailAddress]: never = undefined as never;
   constructor(readonly value: string) {
     super();
   }
@@ -50,7 +51,7 @@ export class EmailAddress extends ValueObject implements Wrapper<string, typeof 
 
 // A zip code
 export class ZipCode extends ValueObject implements Wrapper<string, typeof zipCode> {
-  [zipCode]: never;
+  [zipCode]: never = undefined as never;
   constructor(readonly value: string) {
     super();
   }
@@ -62,7 +63,7 @@ export class ZipCode extends ValueObject implements Wrapper<string, typeof zipCo
 
 // An Id for Orders. Constrained to be a non-empty string <= 50 chars
 export class OrderId extends ValueObject implements Wrapper<string, typeof orderId> {
-  [orderId]: never;
+  [orderId]: never = undefined as never;
   constructor(readonly value: string) {
     super();
   }
@@ -74,7 +75,7 @@ export class OrderId extends ValueObject implements Wrapper<string, typeof order
 
 // An Id for OrderLines. Constrained to be a non-empty string <= 50 chars
 export class OrderLineId extends ValueObject implements Wrapper<string, typeof orderLineId> {
-  [orderLineId]: never;
+  [orderLineId]: never = undefined as never;
   constructor(readonly value: string) {
     super();
   }
@@ -86,7 +87,7 @@ export class OrderLineId extends ValueObject implements Wrapper<string, typeof o
 
 // The codes for Widgets start with a "W" and then four digits
 export class WidgetCode extends ValueObject implements Wrapper<string, typeof widgetCode> {
-  [widgetCode]: never;
+  [widgetCode]: never = undefined as never;
   constructor(readonly value: string) {
     super();
   }
@@ -98,7 +99,7 @@ export class WidgetCode extends ValueObject implements Wrapper<string, typeof wi
 
 // The codes for Gizmos start with a "G" and then three digits.
 export class GizmoCode extends ValueObject implements Wrapper<string, typeof gizmoCode> {
-  [gizmoCode]: never;
+  [gizmoCode]: never = undefined as never;
   constructor(readonly value: string) {
     super();
   }
@@ -127,7 +128,7 @@ export function createProductCode(code: string): E.Either<Error, ProductCode> {
 
 // Constrained to be a integer between 1 and 1000
 export class UnitQuantity extends ValueObject implements Wrapper<number, typeof unitQuantity> {
-  [unitQuantity]: never;
+  [unitQuantity]: never = undefined as never;
   constructor(readonly value: number) {
     super();
   }
@@ -138,7 +139,7 @@ export class UnitQuantity extends ValueObject implements Wrapper<number, typeof 
 
 // Constrained to be a decimal between 0.05 and 100.00
 export class KilogramQuantity extends ValueObject implements Wrapper<number, typeof kilogramQuantity> {
-  [kilogramQuantity]: never;
+  [kilogramQuantity]: never = undefined as never;
   constructor(readonly value: number) {
     super();
   }
@@ -159,7 +160,7 @@ export const createOrderQuantity = (productCode: ProductCode): ((num: number) =>
 
 // Constrained to be a decimal between 0.0 and 1000.00
 export class Price extends ValueObject implements Wrapper<number, typeof price> {
-  [price]: never;
+  [price]: never = undefined as never;
   constructor(readonly value: number) {
     super();
   }
@@ -171,7 +172,7 @@ export class Price extends ValueObject implements Wrapper<number, typeof price> 
   // Throw an exception if out of bounds. This should only be used if you know the value is valid.
   static unsafeCreate: (v: number) => Price = flow(
     Price.create,
-    E.getOrElse(err => {
+    E.getOrElseW(err => {
       throw 'Not expecting Price to be out of bounds: ' + err;
     }),
   );
@@ -186,7 +187,7 @@ export class Price extends ValueObject implements Wrapper<number, typeof price> 
 
 // Constrained to be a decimal between 0.0 and 10000.00
 export class BillingAmount extends ValueObject implements Wrapper<number, typeof billingAmount> {
-  [billingAmount]: never;
+  [billingAmount]: never = undefined as never;
   constructor(readonly value: number) {
     super();
   }
@@ -206,7 +207,7 @@ export class BillingAmount extends ValueObject implements Wrapper<number, typeof
           NA.concatAll(N.SemigroupSum),
         )
         : 0,
-      BillingAmountx.create,
+      BillingAmount.create,
     );
 }
 

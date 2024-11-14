@@ -4,8 +4,10 @@
 
 import { TaskEither } from 'fp-ts/TaskEither';
 
+import * as O from 'fp-ts/Option'
 import type * as Common from '../common-types';
 import { Entity } from '../../libs/model-type';
+import { bound } from '../../libs/decorator';
 // ==================================
 // This file contains the definitions of PUBLIC types (exposed at the boundary of the bounded context)
 // related to the PlaceOrder workflow
@@ -27,9 +29,9 @@ export class UnvalidatedAddress {
     readonly addressLine1: string,
     readonly city: string,
     readonly zipCode: string,
-    readonly addressLine2?: string,
-    readonly addressLine3?: string,
-    readonly addressLine4?: string,
+    readonly addressLine2: O.Option<string>,
+    readonly addressLine3: O.Option<string>,
+    readonly addressLine4: O.Option<string>,
   ) { }
 }
 
@@ -137,7 +139,7 @@ export type PlaceOrderEvent = OrderPlaced | BillableOrderPlaced | OrderAcknowled
 /// All the things that can go wrong in this workflow
 declare const validationError: unique symbol;
 export class ValidationError extends Error {
-  [validationError]: never;
+  [validationError]: never = undefined as never;
   constructor(message: string) {
     super(message);
   }
@@ -149,7 +151,7 @@ export class ValidationError extends Error {
 
 declare const pricingError: unique symbol;
 export class PricingError extends Error {
-  [pricingError]: never;
+  [pricingError]: never = undefined as never;
   constructor(message: string) {
     super(message);
   }

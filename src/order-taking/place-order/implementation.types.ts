@@ -1,6 +1,7 @@
 import { Option } from 'fp-ts/Option';
 import { PhantomBrand, Wrapper } from '../../libs/brand';
 import { Entity } from '../../libs/model-type';
+import { bound } from '../../libs/decorator';
 
 import type * as Common from '../common-types';
 import type { UnvalidatedAddress, PricedOrder, OrderAcknowledgmentSent, PlaceOrderEvent } from './public-types';
@@ -78,7 +79,7 @@ export type GetProductPrice = (i: Common.ProductCode) => Common.Price;
 
 declare const htmlString: unique symbol;
 export class HtmlString implements Wrapper<string, typeof htmlString> {
-  [htmlString]: never;
+  [htmlString]: never = undefined as never;
   constructor(readonly value: string) { }
 }
 

@@ -1,5 +1,6 @@
 import * as A from 'fp-ts/Array';
 import * as E from 'fp-ts/Either';
+import * as O from 'fp-ts/Option';
 import { flow, pipe } from 'fp-ts/function';
 import * as TE from 'fp-ts/TaskEither';
 import { match, P } from 'ts-pattern';
@@ -100,19 +101,20 @@ const toCustomerInfo = (
   E.map(scope => new Common.CustomerInfo(scope.name, scope.emailAddress)),
 );
 
+const optEthToEthOpt: <E, T>(i: O.Option<E.Either<E, T>>) => E.Either<E, O.Option<T>> = O.match(() => E.right(O.none), E.map(O.some));
 const toAddress = (checkedAddress: CheckedAddress): E.Either<ValidationError, Common.Address> => pipe(
   E.Do,
   E.bind('addressLine1', () =>
     pipe(checkedAddress.addressLine1, Common.String50.create, E.mapLeft(ValidationError.from)),
   ),
   E.bind('addressLine2', () =>
-    pipe(checkedAddress.addressLine2, Common.String50.createOption, E.mapLeft(ValidationError.from)),
+    pipe(checkedAddress.addressLine2, O.map(flow(Common.String50.create, E.mapLeft(ValidationError.from))), optEthToEthOpt),
   ),
   E.bind('addressLine3', () =>
-    pipe(checkedAddress.addressLine3, Common.String50.createOption, E.mapLeft(ValidationError.from)),
+    pipe(checkedAddress.addressLine3, O.map(flow(Common.String50.create, E.mapLeft(ValidationError.from))), optEthToEthOpt),
   ),
   E.bind('addressLine4', () =>
-    pipe(checkedAddress.addressLine4, Common.String50.createOption, E.mapLeft(ValidationError.from)),
+    pipe(checkedAddress.addressLine4, O.map(flow(Common.String50.create, E.mapLeft(ValidationError.from))), optEthToEthOpt),
   ),
   E.bind('city', () => pipe(checkedAddress.city, Common.String50.create, E.mapLeft(ValidationError.from))),
   E.bind('zipCode', () => pipe(checkedAddress.zipCode, Common.ZipCode.create, E.mapLeft(ValidationError.from))),

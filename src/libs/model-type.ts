@@ -1,5 +1,6 @@
 import { match, P } from 'ts-pattern';
 import { deepStrictEqual } from 'assert';
+import { bound } from '../libs/decorator';
 
 interface Equatable {
   equals(obj: unknown): boolean;

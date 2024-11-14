@@ -1,5 +1,6 @@
 import * as A from 'fp-ts/Array';
 import * as E from 'fp-ts/Either';
+import * as O from 'fp-ts/Option';
 import { flow, pipe } from 'fp-ts/function';
 import * as Common from '../common-types';
 import { placeOrderEvents } from './implementation.common';
@@ -50,7 +51,7 @@ const failOnError: <T>(aResult: E.Either<Error, T>) => T = E.getOrElse((e) => {
 
 namespace String50 {
   export const create = flow(Common.String50.create, failOnError);
-  export const createOption = flow(Common.String50.createOption, failOnError);
+  //export const createOption = flow(Common.String50.createOption, failOnError);
 }
 
 namespace EmailAddress {
@@ -160,9 +161,9 @@ const toAddress = (checkAddressExists: CheckAddressExists) => (unvalidatedAddres
   // call the remote service
   const checkedAddress = checkAddressExists(unvalidatedAddress);
   const addressLine1 = String50.create(checkedAddress.addressLine1);
-  const addressLine2 = String50.createOption(checkedAddress.addressLine2);
-  const addressLine3 = String50.createOption(checkedAddress.addressLine3);
-  const addressLine4 = String50.createOption(checkedAddress.addressLine4);
+  const addressLine2 = pipe(checkedAddress.addressLine2, O.map(String50.create));
+  const addressLine3 = pipe(checkedAddress.addressLine3, O.map(String50.create));
+  const addressLine4 = pipe(checkedAddress.addressLine4, O.map(String50.create));
   const city = String50.create(checkedAddress.city);
   const zipCode = ZipCode.create(checkedAddress.zipCode);
   return new Common.Address(addressLine1, addressLine2, addressLine3, addressLine4, city, zipCode);

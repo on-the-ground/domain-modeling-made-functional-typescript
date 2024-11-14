@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
+    "build": "npx tsc -b",
     "test": "echo \"Error: no test specified\" && exit 1",
     "typescript": "tsc"
   },

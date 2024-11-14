@@ -10,7 +10,7 @@
 import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
 import * as Common from '../common-types';
-import * as A from 'fp-ts/Array';
+import * as RA from 'fp-ts/ReadonlyArray';
 import { pipe } from 'fp-ts/function';
 import { match, P } from 'ts-pattern';
 import {
@@ -28,6 +28,7 @@ import {
   PricingError,
   RemoteServiceError,
 } from './public-types';
+import { bound } from '../../libs/decorator';
 
 // ==================================
 // DTOs for PlaceOrder workflow
@@ -46,23 +47,25 @@ export class CustomerInfoDto {
   /// Convert the DTO into a UnvalidatedCustomerInfo object.
   /// This always succeeds because there is no validation.
   /// Used when importing an OrderForm from the outside world into the domain.
-  static toUnvalidatedCustomerInfo(dto: CustomerInfoDto): UnvalidatedCustomerInfo {
+  @bound
+  toUnvalidatedCustomerInfo(): UnvalidatedCustomerInfo {
     // sometimes it's helpful to use an explicit type annotation
     // to avoid ambiguity between records with the same field names.
 
     // this is a simple 1:1 copy which always succeeds
-    return new UnvalidatedCustomerInfo(dto.firstName, dto.lastName, dto.emailAddress);
+    return new UnvalidatedCustomerInfo(this.firstName, this.lastName, this.emailAddress);
   }
 
   /// Convert the DTO into a CustomerInfo object
   /// Used when importing from the outside world into the domain, eg loading from a database
-  static toCustomerInfo(dto: CustomerInfoDto): E.Either<Error, Common.CustomerInfo> {
+  @bound
+  toCustomerInfo(): E.Either<Error, Common.CustomerInfo> {
     return pipe(
       E.Do,
       // get each (validated) simple type from the DTO as a success or failure
-      E.bind('first', () => Common.String50.create(dto.firstName)),
-      E.bind('last', () => Common.String50.create(dto.lastName)),
-      E.bind('email', () => Common.EmailAddress.create(dto.emailAddress)),
+      E.bind('first', () => Common.String50.create(this.firstName)),
+      E.bind('last', () => Common.String50.create(this.lastName)),
+      E.bind('email', () => Common.EmailAddress.create(this.emailAddress)),
       // combine the components to create the domain object
       E.let('name', ({ first, last }) => new Common.PersonalName(first, last)),
       E.map(scope => new Common.CustomerInfo(scope.name, scope.email)),
@@ -90,38 +93,41 @@ export class AddressDto {
     readonly addressLine1: string,
     readonly city: string,
     readonly zipCode: string,
-    readonly addressLine2?: string,
-    readonly addressLine3?: string,
-    readonly addressLine4?: string,
+    readonly addressLine2: O.Option<string>,
+    readonly addressLine3: O.Option<string>,
+    readonly addressLine4: O.Option<string>,
   ) { }
 
   /// Convert the DTO into a UnvalidatedAddress
   /// This always succeeds because there is no validation.
   /// Used when importing an OrderForm from the outside world into the domain.
-  static toUnvalidatedAddress(dto: AddressDto): UnvalidatedAddress {
+  @bound
+  toUnvalidatedAddress(): UnvalidatedAddress {
     // this is a simple 1:1 copy
     return new UnvalidatedAddress(
-      dto.addressLine1,
-      dto.city,
-      dto.zipCode,
-      dto.addressLine2,
-      dto.addressLine3,
-      dto.addressLine4,
+      this.addressLine1,
+      this.city,
+      this.zipCode,
+      this.addressLine2,
+      this.addressLine3,
+      this.addressLine4,
     );
   }
 
   /// Convert the DTO into a Address object
   /// Used when importing from the outside world into the domain, eg loading from a database.
-  static toAddress(dto: AddressDto): E.Either<Error, Common.Address> {
+  @bound
+  toAddress(): E.Either<Error, Common.Address> {
+    const optEthToEthOpt: <E, T>(i: O.Option<E.Either<E, T>>) => E.Either<E, O.Option<T>> = O.match(() => E.right(O.none), E.map(O.some));
     return pipe(
       E.Do,
       // get each (validated) simple type from the DTO as a success or failure
-      E.bind('addressLine1', () => Common.String50.create(dto.addressLine1)),
-      E.bind('addressLine2', () => Common.String50.createOption(dto.addressLine2)),
-      E.bind('addressLine3', () => Common.String50.createOption(dto.addressLine3)),
-      E.bind('addressLine4', () => Common.String50.createOption(dto.addressLine4)),
-      E.bind('city', () => Common.String50.create(dto.city)),
-      E.bind('zipCode', () => Common.ZipCode.create(dto.zipCode)),
+      E.bind('addressLine1', () => Common.String50.create(this.addressLine1)),
+      E.bind('addressLine2', () => pipe(this.addressLine2, O.map(Common.String50.create), optEthToEthOpt)),
+      E.bind('addressLine3', () => pipe(this.addressLine3, O.map(Common.String50.create), optEthToEthOpt)),
+      E.bind('addressLine4', () => pipe(this.addressLine4, O.map(Common.String50.create), optEthToEthOpt)),
+      E.bind('city', () => Common.String50.create(this.city)),
+      E.bind('zipCode', () => Common.ZipCode.create(this.zipCode)),
       // combine the components to create the domain object
       E.map(scope => new Common.Address(
         scope.addressLine1,
@@ -145,17 +151,14 @@ export class AddressDto {
       pipe(
         domainObj.addressLine2,
         O.map(i => i.value),
-        O.toNullable,
       ),
       pipe(
         domainObj.addressLine3,
         O.map(i => i.value),
-        O.toNullable,
       ),
       pipe(
         domainObj.addressLine4,
         O.map(i => i.value),
-        O.toNullable,
       ),
     );
   }
@@ -176,9 +179,10 @@ export class OrderFormLineDto {
   /// Convert the OrderFormLine into a UnvalidatedOrderLine
   /// This always succeeds because there is no validation.
   /// Used when importing an OrderForm from the outside world into the domain.
-  static toUnvalidatedOrderLine(dto: OrderFormLineDto): UnvalidatedOrderLine {
+  @bound
+  toUnvalidatedOrderLine(): UnvalidatedOrderLine {
     // this is a simple 1:1 copy
-    return new UnvalidatedOrderLine(dto.orderLineId, dto.productCode, dto.quantity);
+    return new UnvalidatedOrderLine(this.orderLineId, this.productCode, this.quantity);
   }
 }
 
@@ -223,13 +227,14 @@ export class OrderFormDto {
 
   /// Convert the OrderForm into a UnvalidatedOrder
   /// This always succeeds because there is no validation.
-  static toUnvalidatedOrder(dto: OrderFormDto): UnvalidatedOrder {
+  @bound
+  toUnvalidatedOrder(): UnvalidatedOrder {
     return new UnvalidatedOrder(
-      dto.orderId,
-      CustomerInfoDto.toUnvalidatedCustomerInfo(dto.customerInfo),
-      AddressDto.toUnvalidatedAddress(dto.shippingAddress),
-      AddressDto.toUnvalidatedAddress(dto.billingAddress),
-      pipe(dto.lines, A.map(OrderFormLineDto.toUnvalidatedOrderLine)),
+      this.orderId,
+      this.customerInfo.toUnvalidatedCustomerInfo(),
+      this.shippingAddress.toUnvalidatedAddress(),
+      this.billingAddress.toUnvalidatedAddress(),
+      this.lines.map(l => l.toUnvalidatedOrderLine()),
     );
   }
 }
@@ -258,7 +263,7 @@ export class OrderPlacedDto {
       AddressDto.fromAddress(domainObj.shippingAddress),
       AddressDto.fromAddress(domainObj.billingAddress),
       domainObj.amountToBill.value,
-      pipe(domainObj.lines, A.map(PricedOrderLineDto.fromDomain)),
+      pipe(domainObj.lines, RA.map(PricedOrderLineDto.fromDomain), RA.toArray),
     );
   }
 }

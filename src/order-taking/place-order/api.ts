@@ -85,7 +85,7 @@ export const placeOrderApi: PlaceOrderApi = (request: HttpRequest) => {
   );
 
   // convert to domain object
-  const unvalidatedOrder = OrderFormDto.toUnvalidatedOrder(orderForm);
+  const unvalidatedOrder = orderForm.toUnvalidatedOrder();
 
   // setup the dependencies. See "Injecting Dependencies" in chapter 9
   const workflow = Implementation.placeOrder(
