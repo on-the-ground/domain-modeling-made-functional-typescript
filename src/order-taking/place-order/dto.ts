@@ -59,7 +59,7 @@ export class CustomerInfoDto {
   /// Convert the DTO into a CustomerInfo object
   /// Used when importing from the outside world into the domain, eg loading from a database
   @bound
-  toCustomerInfo(): E.Either<Error, Common.CustomerInfo> {
+  toDomain(): E.Either<Error, Common.CustomerInfo> {
     return pipe(
       E.Do,
       // get each (validated) simple type from the DTO as a success or failure
@@ -74,7 +74,7 @@ export class CustomerInfoDto {
 
   /// Convert a CustomerInfo object into the corresponding DTO.
   /// Used when exporting from the domain to the outside world.
-  static fromCustomerInfo(domainObj: Common.CustomerInfo): CustomerInfoDto {
+  static fromDomain(domainObj: Common.CustomerInfo): CustomerInfoDto {
     // this is a simple 1:1 copy
     return new CustomerInfoDto(
       domainObj.name.firstName.value,
@@ -117,7 +117,7 @@ export class AddressDto {
   /// Convert the DTO into a Address object
   /// Used when importing from the outside world into the domain, eg loading from a database.
   @bound
-  toAddress(): E.Either<Error, Common.Address> {
+  toDomain(): E.Either<Error, Common.Address> {
     const optEthToEthOpt: <E, T>(i: O.Option<E.Either<E, T>>) => E.Either<E, O.Option<T>> = O.match(() => E.right(O.none), E.map(O.some));
     return pipe(
       E.Do,
@@ -142,7 +142,7 @@ export class AddressDto {
 
   /// Convert a Address object into the corresponding DTO.
   /// Used when exporting from the domain to the outside world.
-  static fromAddress(domainObj: Common.Address): AddressDto {
+  static fromDomain(domainObj: Common.Address): AddressDto {
     // this is a simple 1:1 copy
     return new AddressDto(
       domainObj.addressLine1.value,
@@ -259,9 +259,9 @@ export class OrderPlacedDto {
   static fromDomain(domainObj: OrderPlaced): OrderPlacedDto {
     return new OrderPlacedDto(
       domainObj.orderId.value,
-      CustomerInfoDto.fromCustomerInfo(domainObj.customerInfo),
-      AddressDto.fromAddress(domainObj.shippingAddress),
-      AddressDto.fromAddress(domainObj.billingAddress),
+      CustomerInfoDto.fromDomain(domainObj.customerInfo),
+      AddressDto.fromDomain(domainObj.shippingAddress),
+      AddressDto.fromDomain(domainObj.billingAddress),
       domainObj.amountToBill.value,
       pipe(domainObj.lines, RA.map(PricedOrderLineDto.fromDomain), RA.toArray),
     );
@@ -285,7 +285,7 @@ export class BillableOrderPlacedDto {
   static fromDomain(domainObj: BillableOrderPlaced): BillableOrderPlacedDto {
     return new BillableOrderPlacedDto(
       domainObj.orderId.value,
-      AddressDto.fromAddress(domainObj.billingAddress),
+      AddressDto.fromDomain(domainObj.billingAddress),
       domainObj.amountToBill.value,
     );
   }
