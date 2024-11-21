@@ -315,12 +315,15 @@ export class OrderAcknowledgmentSentDto {
 
 /// Use a dictionary representation of a PlaceOrderEvent, suitable for JSON
 /// See "Serializing Records and Choice Types Using Maps" in chapter 11
-export type PlaceOrderEventDto = Map<string, Object>;
+export type PlaceOrderEventDto =
+  | { OrderPlaced: OrderPlacedDto }
+  | { BillableOrderPlaced: BillableOrderPlacedDto }
+  | { OrderAcknowledgmentSent: OrderAcknowledgmentSentDto };
 
 /// Convert a PlaceOrderEvent into the corresponding DTO.
 /// Used when exporting from the domain to the outside world.
 export const placeOrderEventDtoFromDomain = (domainObj: PlaceOrderEvent): PlaceOrderEventDto =>
-  new Map<string, Object>([
+  Object.fromEntries([
     match(domainObj)
       .with(P.instanceOf(OrderPlaced), i =>
         ['OrderPlaced', OrderPlacedDto.fromDomain(i)] as const)
