@@ -24,17 +24,19 @@ import type {
 
 type JsonString = string;
 
-// This function serialize a domain object into a json string
-const serialize = JSON.stringify
+namespace Json {
+  // This function serialize a domain object into a json string
+  export const serialize = JSON.stringify
 
-// This function deserialize a json string into a domain object
-const deserialize = <T extends object>(cls: { prototype: T }) => E.tryCatchK(
-  flow(
-    JSON.parse,
-    obj => Object.setPrototypeOf(obj, cls.prototype) as T,
-  ),
-  e => e,
-)
+  // This function deserialize a json string into a domain object
+  export const deserialize = <T extends object>(cls: { prototype: T }) => E.tryCatchK(
+    flow(
+      JSON.parse,
+      obj => Object.setPrototypeOf(obj, cls.prototype) as T,
+    ),
+    e => e,
+  )
+}
 
 /// Very simplified version!
 class HttpRequest {
@@ -79,7 +81,7 @@ export const sendOrderAcknowledgment: SendOrderAcknowledgment = orderAcknowledge
 
 export const placeOrderApi: PlaceOrderApi = (request: HttpRequest) => pipe(
   request.body,             // orderFormJson
-  deserialize(OrderFormDto), // following the approach in "A Complete Serialization Pipeline" in chapter 11
+  Json.deserialize(OrderFormDto), // following the approach in "A Complete Serialization Pipeline" in chapter 11
   E.map((orderForm) => orderForm.toUnvalidatedOrder()), // convert to domain object
   TE.fromEither,
   TE.flatMap(
@@ -96,7 +98,15 @@ export const placeOrderApi: PlaceOrderApi = (request: HttpRequest) => pipe(
 )().then(
   // now convert from the pure domain back to a HttpResponse
   E.match(
-    flow(PlaceOrderErrorDto.fromDomain, serialize, json => new HttpResponse(401, json)),
-    flow(A.map(placeOrderEventDtoFromDomain), serialize, json => new HttpResponse(200, json)),
+    flow(
+      PlaceOrderErrorDto.fromDomain,
+      Json.serialize,
+      json => new HttpResponse(401, json),
+    ),
+    flow(
+      A.map(placeOrderEventDtoFromDomain),
+      Json.serialize,
+      json => new HttpResponse(200, json),
+    ),
   ),
 )

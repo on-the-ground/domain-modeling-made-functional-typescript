@@ -320,7 +320,7 @@ export type PlaceOrderEventDto = Map<string, Object>;
 /// Convert a PlaceOrderEvent into the corresponding DTO.
 /// Used when exporting from the domain to the outside world.
 export const placeOrderEventDtoFromDomain = (domainObj: PlaceOrderEvent): PlaceOrderEventDto =>
-  pipe(
+  new Map<string, Object>([
     match(domainObj)
       .with(P.instanceOf(OrderPlaced), i =>
         ['OrderPlaced', OrderPlacedDto.fromDomain(i)] as const)
@@ -329,8 +329,7 @@ export const placeOrderEventDtoFromDomain = (domainObj: PlaceOrderEvent): PlaceO
       .with(P.instanceOf(OrderAcknowledgmentSent), i =>
         ['OrderAcknowledgmentSent', OrderAcknowledgmentSentDto.fromDomain(i)] as const,)
       .exhaustive(),
-    (kvPair: readonly [string, Object]) => new Map([kvPair]),
-  );
+  ]);
 
 //===============================================
 // DTO for PlaceOrderError

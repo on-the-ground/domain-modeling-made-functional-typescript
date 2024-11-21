@@ -17,6 +17,7 @@ import { bound } from '../../libs/decorator';
 // ===============================
 
 // Constrained to be 50 chars or less, not null
+const string50: unique symbol = Symbol();
 export class String50 extends ValueObject implements Wrapper<string, typeof string50> {
   [string50]: never = undefined as never;
   constructor(readonly value: string) {
@@ -37,6 +38,7 @@ export class String50 extends ValueObject implements Wrapper<string, typeof stri
 }
 
 // An email address
+const emailAddress: unique symbol = Symbol();
 export class EmailAddress extends ValueObject implements Wrapper<string, typeof emailAddress> {
   [emailAddress]: never = undefined as never;
   constructor(readonly value: string) {
@@ -49,6 +51,7 @@ export class EmailAddress extends ValueObject implements Wrapper<string, typeof 
 }
 
 // A zip code
+const zipCode: unique symbol = Symbol();
 export class ZipCode extends ValueObject implements Wrapper<string, typeof zipCode> {
   [zipCode]: never = undefined as never;
   constructor(readonly value: string) {
@@ -61,6 +64,7 @@ export class ZipCode extends ValueObject implements Wrapper<string, typeof zipCo
 }
 
 // An Id for Orders. Constrained to be a non-empty string <= 50 chars
+const orderId: unique symbol = Symbol();
 export class OrderId extends ValueObject implements Wrapper<string, typeof orderId> {
   [orderId]: never = undefined as never;
   constructor(readonly value: string) {
@@ -73,6 +77,7 @@ export class OrderId extends ValueObject implements Wrapper<string, typeof order
 }
 
 // An Id for OrderLines. Constrained to be a non-empty string <= 50 chars
+const orderLineId: unique symbol = Symbol();
 export class OrderLineId extends ValueObject implements Wrapper<string, typeof orderLineId> {
   [orderLineId]: never = undefined as never;
   constructor(readonly value: string) {
@@ -85,6 +90,7 @@ export class OrderLineId extends ValueObject implements Wrapper<string, typeof o
 }
 
 // The codes for Widgets start with a "W" and then four digits
+const widgetCode: unique symbol = Symbol();
 export class WidgetCode extends ValueObject implements Wrapper<string, typeof widgetCode> {
   [widgetCode]: never = undefined as never;
   constructor(readonly value: string) {
@@ -97,6 +103,7 @@ export class WidgetCode extends ValueObject implements Wrapper<string, typeof wi
 }
 
 // The codes for Gizmos start with a "G" and then three digits.
+const gizmoCode: unique symbol = Symbol();
 export class GizmoCode extends ValueObject implements Wrapper<string, typeof gizmoCode> {
   [gizmoCode]: never = undefined as never;
   constructor(readonly value: string) {
@@ -126,6 +133,7 @@ export function createProductCode(code: string): E.Either<Error, ProductCode> {
 }
 
 // Constrained to be a integer between 1 and 1000
+const unitQuantity: unique symbol = Symbol();
 export class UnitQuantity extends ValueObject implements Wrapper<number, typeof unitQuantity> {
   [unitQuantity]: never = undefined as never;
   constructor(readonly value: number) {
@@ -137,6 +145,7 @@ export class UnitQuantity extends ValueObject implements Wrapper<number, typeof 
 }
 
 // Constrained to be a decimal between 0.05 and 100.00
+const kilogramQuantity: unique symbol = Symbol();
 export class KilogramQuantity extends ValueObject implements Wrapper<number, typeof kilogramQuantity> {
   [kilogramQuantity]: never = undefined as never;
   constructor(readonly value: number) {
@@ -158,6 +167,7 @@ export const createOrderQuantity = (productCode: ProductCode): ((num: number) =>
     .exhaustive();
 
 // Constrained to be a decimal between 0.0 and 1000.00
+const price: unique symbol = Symbol();
 export class Price extends ValueObject implements Wrapper<number, typeof price> {
   [price]: never = undefined as never;
   constructor(readonly value: number) {
@@ -185,6 +195,7 @@ export class Price extends ValueObject implements Wrapper<number, typeof price> 
 }
 
 // Constrained to be a decimal between 0.0 and 10000.00
+const billingAmount: unique symbol = Symbol();
 export class BillingAmount extends ValueObject implements Wrapper<number, typeof billingAmount> {
   [billingAmount]: never = undefined as never;
   constructor(readonly value: number) {
@@ -209,15 +220,3 @@ export class BillingAmount extends ValueObject implements Wrapper<number, typeof
       BillingAmount.create,
     );
 }
-
-declare const string50: unique symbol;
-declare const emailAddress: unique symbol;
-declare const zipCode: unique symbol;
-declare const orderId: unique symbol;
-declare const orderLineId: unique symbol;
-declare const widgetCode: unique symbol;
-declare const gizmoCode: unique symbol;
-declare const unitQuantity: unique symbol;
-declare const kilogramQuantity: unique symbol;
-declare const price: unique symbol;
-declare const billingAmount: unique symbol;
