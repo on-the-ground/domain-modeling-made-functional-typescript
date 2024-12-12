@@ -15,7 +15,10 @@
       "./types",
       "./node_modules/@types"
     ],
-    "allowJs": true
+    "allowJs": true,
+    "strictNullChecks": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
   },
   "exclude": [
     "node_modules",

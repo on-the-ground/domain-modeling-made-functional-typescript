@@ -26,7 +26,7 @@ export const createString =
 // Return Some if the input is valid
 // export const createStringOption =
 //   <T>(ctor: { new (i: string): T }, maxLen: number) =>
-//   (str?: string): E.Either<Error, O.Option<T>> => {
+//   (str: string | null = null): E.Either<Error, O.Option<T>> => {
 //     if (!str) {
 //       return E.right(O.none);
 //     }
