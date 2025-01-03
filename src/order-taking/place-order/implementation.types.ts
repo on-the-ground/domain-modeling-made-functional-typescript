@@ -79,7 +79,7 @@ export type GetProductPrice = (i: Common.ProductCode) => Common.Price;
 
 declare const htmlString: unique symbol;
 export class HtmlString implements Wrapper<string, typeof htmlString> {
-  [htmlString]: never = undefined as never;
+  [htmlString]!: never;
   constructor(readonly value: string) { }
 }
 

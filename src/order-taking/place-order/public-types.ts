@@ -139,7 +139,7 @@ export type PlaceOrderEvent = OrderPlaced | BillableOrderPlaced | OrderAcknowled
 /// All the things that can go wrong in this workflow
 declare const validationError: unique symbol;
 export class ValidationError extends Error {
-  [validationError]: never = undefined as never;
+  [validationError]!: never;
   constructor(message: string) {
     super(message);
   }
@@ -151,7 +151,7 @@ export class ValidationError extends Error {
 
 declare const pricingError: unique symbol;
 export class PricingError extends Error {
-  [pricingError]: never = undefined as never;
+  [pricingError]!: never;
   constructor(message: string) {
     super(message);
   }
