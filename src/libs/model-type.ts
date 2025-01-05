@@ -1,4 +1,3 @@
-import { match, P } from 'ts-pattern';
 import { deepStrictEqual } from 'assert';
 import { bound } from '../libs/decorator';
 
@@ -18,21 +17,16 @@ export abstract class ValueObject implements Equatable {
 }
 
 type RawId = string | number | bigint;
-const RawIdPattern = P.union(P.string, P.number, P.bigint);
-type WrapperId = ValueObject;
-const WrapperIdPattern = P.instanceOf(ValueObject);
 
 export abstract class Entity implements Equatable {
-  abstract readonly id: RawId | WrapperId;
-  abstract isSameClass<T extends Entity>(obj: unknown): obj is T;
+  abstract readonly id: RawId | ValueObject;
+  protected abstract isSameClass<T extends Entity>(obj: unknown): obj is T;
 
   @bound
   equals(obj: unknown): boolean {
-    return this.isSameClass(obj)
-      ? match(this.id)
-        .with(RawIdPattern, id => id === obj.id)
-        .with(WrapperIdPattern, id => id.equals(obj.id))
-        .exhaustive()
-      : false;
+    if (!this.isSameClass(obj)) return false;
+    return (this.id instanceof ValueObject)
+      ? this.id.equals(obj.id)
+      : this.id === obj.id;
   }
 }
