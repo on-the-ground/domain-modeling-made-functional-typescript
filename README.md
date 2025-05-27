@@ -39,17 +39,3 @@ I chose TypeScript and Kotlin because:
 By selecting these two languages, I hoped to recreate the examples in a way that resonates with a broader developer audience.
 
 I did worry that these adaptations might make the translated book slightly less approachable than the original. However, my stronger desire was to ensure that this book remains relevant to a new generation of developers who will consider algebraic effect handlers as a natural part of programming. I ask for your understanding in this regard.
-
-## Acknowledgments
-This being my first translation project, there are countless people I wish to thank. However, I will limit my gratitude to those who directly contributed to this book.
-- To all the members of Weavercare, who gave a clueless newcomer both responsibility and opportunities, along with a fair mix of encouragement and discipline—thank you.
-- To the one and only “that” Peggy Gou, who first encouraged me to start this book—thank you.
-- To Scott Wlaschin and the team at The Pragmatic Programmer, for generously allowing modifications to the examples—thank you.
-- To CEO Jang Sung-doo of JPub, who took a chance on this challenging translation—thank you.
-- To Kim Jong-kyun, a visionary ahead of his time and a fearless seeker of truth, who supported this translation by providing me with a laptop—thank you.
-- To Jung Hwan-jin from Baedal Minjok, who painstakingly reviewed my drafts in real-time as if this were his own book—without your help, I would never have finished this translation. Thank you.
-- To Jo Sung-min from Weavercare, who saved me when I was lost in effect systems and monads, saying bluntly that my draft was “not friendly” and helping me find a clear direction—thank you.
-- To editor Song Young-hwa from JPub, who patiently waited for me and supported me through every stage of the translation process—thank you.
-- To my wife, Lim Se-won, who stood by me with unwavering support despite the long period of financial strain caused by my dedication to this translation—thank you.
-- And finally, to myself—who somehow emerged from the deep, treacherous valley of effect systems without giving up—I offer my sincerest gratitude.
-
