@@ -1,7 +1,7 @@
 import { Option } from 'fp-ts/Option';
 import { PhantomBrand, Wrapper } from '../../libs/brand';
 import { bound } from '../../libs/decorator';
-import { Entity } from '../../libs/model-type';
+import { Entity, ValueObject } from '../../libs/model-type';
 
 import type * as Common from '../common-types';
 import type { OrderAcknowledgmentSent, PlaceOrderEvent, PricedOrder, UnvalidatedAddress } from './public-types';
@@ -83,11 +83,11 @@ export class HtmlString implements Wrapper<string, typeof htmlString> {
   constructor(readonly value: string) { }
 }
 
-export class OrderAcknowledgement {
+export class OrderAcknowledgement extends ValueObject {
   constructor(
     readonly emailAddress: Common.EmailAddress,
     readonly letter: HtmlString,
-  ) { }
+  ) { super() }
 }
 
 export type CreateOrderAcknowledgmentLetter = (i: PricedOrder) => HtmlString;

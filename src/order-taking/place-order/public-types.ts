@@ -5,7 +5,7 @@
 import * as O from 'fp-ts/Option';
 import { TaskEither } from 'fp-ts/TaskEither';
 import { bound } from '../../libs/decorator';
-import { Entity } from '../../libs/model-type';
+import { Entity, ValueObject } from '../../libs/model-type';
 
 import type * as Common from '../common-types';
 // ==================================
@@ -16,15 +16,15 @@ import type * as Common from '../common-types';
 // ------------------------------------
 // inputs to the workflow
 
-export class UnvalidatedCustomerInfo {
+export class UnvalidatedCustomerInfo extends ValueObject {
   constructor(
     readonly firstName: string,
     readonly lastName: string,
     readonly emailAddress: string,
-  ) { }
+  ) { super() }
 }
 
-export class UnvalidatedAddress {
+export class UnvalidatedAddress extends ValueObject {
   constructor(
     readonly addressLine1: string,
     readonly city: string,
@@ -32,36 +32,36 @@ export class UnvalidatedAddress {
     readonly addressLine2: O.Option<string>,
     readonly addressLine3: O.Option<string>,
     readonly addressLine4: O.Option<string>,
-  ) { }
+  ) { super() }
 }
 
-export class UnvalidatedOrderLine {
+export class UnvalidatedOrderLine extends ValueObject {
   constructor(
     readonly orderLineId: string,
     readonly productCode: string,
     readonly quantity: number,
-  ) { }
+  ) { super() }
 }
 
-export class UnvalidatedOrder {
+export class UnvalidatedOrder extends ValueObject {
   constructor(
     readonly orderId: string,
     readonly customerInfo: UnvalidatedCustomerInfo,
     readonly shippingAddress: UnvalidatedAddress,
     readonly billingAddress: UnvalidatedAddress,
     readonly lines: UnvalidatedOrderLine[],
-  ) { }
+  ) { super() }
 }
 
 // ------------------------------------
 // outputs from the workflow (success case)
 
 /// Event will be created if the Acknowledgment was successfully posted
-export class OrderAcknowledgmentSent {
+export class OrderAcknowledgmentSent extends ValueObject {
   constructor(
     readonly orderId: Common.OrderId,
     readonly emailAddress: Common.EmailAddress,
-  ) { }
+  ) { super() }
 }
 
 // priced state
@@ -108,7 +108,7 @@ export class PricedOrder extends Entity {
 }
 
 /// Event to send to shipping context
-export class OrderPlaced {
+export class OrderPlaced extends ValueObject {
   constructor(
     readonly orderId: Common.OrderId,
     readonly customerInfo: Common.CustomerInfo,
@@ -116,17 +116,17 @@ export class OrderPlaced {
     readonly billingAddress: Common.Address,
     readonly amountToBill: Common.BillingAmount,
     readonly lines: readonly PricedOrderLine[],
-  ) { }
+  ) { super() }
 }
 
 /// Event to send to billing context
 /// Will only be created if the AmountToBill is not zero
-export class BillableOrderPlaced {
+export class BillableOrderPlaced extends ValueObject {
   constructor(
     readonly orderId: Common.OrderId,
     readonly billingAddress: Common.Address,
     readonly amountToBill: Common.BillingAmount,
-  ) { }
+  ) { super() }
 }
 
 /// The possible events resulting from the PlaceOrder workflow
@@ -161,18 +161,18 @@ export class PricingError extends Error {
   }
 }
 
-export class ServiceInfo {
+export class ServiceInfo extends ValueObject {
   constructor(
     readonly name: string,
     readonly endpoint: URL,
-  ) { }
+  ) { super() }
 }
 
-export class RemoteServiceError {
+export class RemoteServiceError extends ValueObject {
   constructor(
     readonly service: ServiceInfo,
     readonly exception: Error,
-  ) { }
+  ) { super() }
 }
 
 export type PlaceOrderError = ValidationError | PricingError | RemoteServiceError;

@@ -29,6 +29,7 @@ import {
   UnvalidatedOrderLine,
   ValidationError,
 } from './public-types';
+import { ValueObject } from '../../libs/model-type'
 
 // ==================================
 // DTOs for PlaceOrder workflow
@@ -38,12 +39,12 @@ import {
 // DTO for CustomerInfo
 //===============================================
 
-export class CustomerInfoDto {
+export class CustomerInfoDto extends ValueObject {
   constructor(
     readonly firstName: string,
     readonly lastName: string,
     readonly emailAddress: string,
-  ) { }
+  ) { super() }
   /// Convert the DTO into a UnvalidatedCustomerInfo object.
   /// This always succeeds because there is no validation.
   /// Used when importing an OrderForm from the outside world into the domain.
@@ -88,7 +89,7 @@ export class CustomerInfoDto {
 // DTO for Address
 //===============================================
 
-export class AddressDto {
+export class AddressDto extends ValueObject {
   constructor(
     readonly addressLine1: string,
     readonly city: string,
@@ -96,7 +97,7 @@ export class AddressDto {
     readonly addressLine2: O.Option<string>,
     readonly addressLine3: O.Option<string>,
     readonly addressLine4: O.Option<string>,
-  ) { }
+  ) { super() }
 
   /// Convert the DTO into a UnvalidatedAddress
   /// This always succeeds because there is no validation.
@@ -169,12 +170,12 @@ export class AddressDto {
 //===============================================
 
 /// From the order form used as input
-export class OrderFormLineDto {
+export class OrderFormLineDto extends ValueObject {
   constructor(
     readonly orderLineId: string,
     readonly productCode: string,
     readonly quantity: number,
-  ) { }
+  ) { super() }
 
   /// Convert the OrderFormLine into a UnvalidatedOrderLine
   /// This always succeeds because there is no validation.
@@ -191,13 +192,13 @@ export class OrderFormLineDto {
 //===============================================
 
 /// Used in the output of the workflow
-export class PricedOrderLineDto {
+export class PricedOrderLineDto extends ValueObject {
   constructor(
     readonly orderLineId: string,
     readonly productCode: string,
     readonly quantity: number,
     readonly linePrice: number,
-  ) { }
+  ) { super() }
 
   /// Convert a PricedOrderLine object into the corresponding DTO.
   /// Used when exporting from the domain to the outside world.
@@ -216,14 +217,14 @@ export class PricedOrderLineDto {
 // DTO for OrderForm
 //===============================================
 
-export class OrderFormDto {
+export class OrderFormDto extends ValueObject {
   constructor(
     readonly orderId: string,
     readonly customerInfo: CustomerInfoDto,
     readonly shippingAddress: AddressDto,
     readonly billingAddress: AddressDto,
     readonly lines: OrderFormLineDto[],
-  ) { }
+  ) { super() }
 
   /// Convert the OrderForm into a UnvalidatedOrder
   /// This always succeeds because there is no validation.
@@ -244,7 +245,7 @@ export class OrderFormDto {
 //===============================================
 
 /// Event to send to shipping context
-export class OrderPlacedDto {
+export class OrderPlacedDto extends ValueObject {
   constructor(
     readonly orderId: string,
     readonly customerInfo: CustomerInfoDto,
@@ -252,7 +253,7 @@ export class OrderPlacedDto {
     readonly billingAddress: AddressDto,
     readonly amountToBill: number,
     readonly lines: PricedOrderLineDto[],
-  ) { }
+  ) { super() }
 
   /// Convert a OrderPlaced object into the corresponding DTO.
   /// Used when exporting from the domain to the outside world.
@@ -273,12 +274,12 @@ export class OrderPlacedDto {
 //===============================================
 
 /// Event to send to billing context
-export class BillableOrderPlacedDto {
+export class BillableOrderPlacedDto extends ValueObject {
   constructor(
     readonly orderId: string,
     readonly billingAddress: AddressDto,
     readonly amountToBill: number,
-  ) { }
+  ) { super() }
 
   /// Convert a BillableOrderPlaced object into the corresponding DTO.
   /// Used when exporting from the domain to the outside world.
@@ -296,11 +297,11 @@ export class BillableOrderPlacedDto {
 //===============================================
 
 /// Event to send to other bounded contexts
-export class OrderAcknowledgmentSentDto {
+export class OrderAcknowledgmentSentDto extends ValueObject {
   constructor(
     readonly orderId: string,
     readonly emailAddress: string,
-  ) { }
+  ) { super() }
 
   /// Convert a OrderAcknowledgmentSent object into the corresponding DTO.
   /// Used when exporting from the domain to the outside world.
@@ -338,11 +339,11 @@ export const placeOrderEventDtoFromDomain = (domainObj: PlaceOrderEvent): PlaceO
 // DTO for PlaceOrderError
 //===============================================
 
-export class PlaceOrderErrorDto {
+export class PlaceOrderErrorDto extends ValueObject {
   constructor(
     readonly code: string,
     readonly message: string,
-  ) { }
+  ) { super() }
 
   static fromDomain(domainObj: PlaceOrderError): PlaceOrderErrorDto {
     return match(domainObj)
