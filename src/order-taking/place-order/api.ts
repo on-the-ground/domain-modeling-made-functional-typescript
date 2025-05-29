@@ -12,15 +12,16 @@ import { flow, pipe } from 'fp-ts/function';
 import * as TE from 'fp-ts/TaskEither';
 import { Price } from '../common-types';
 import { OrderFormDto, PlaceOrderErrorDto, placeOrderEventDtoFromDomain } from './dto';
-import * as Implementation from './implementation';
 import { createCheckedAddress, HtmlString, Sent } from './implementation.types';
 
 import type {
+  CheckAddressExists,
   CheckProductCodeExists,
   CreateOrderAcknowledgmentLetter,
   GetProductPrice,
   SendOrderAcknowledgment,
 } from './implementation.types';
+import { placeOrder } from './implementation';
 
 type JsonString = string;
 
@@ -66,7 +67,7 @@ type PlaceOrderApi = (i: HttpRequest) => Promise<HttpResponse>;
 
 export const checkProductExists: CheckProductCodeExists = productCode => true; // dummy implementation
 
-export const checkAddressExists: Implementation.CheckAddressExists = flow(createCheckedAddress, E.right, TE.fromEither);
+export const checkAddressExists: CheckAddressExists = flow(createCheckedAddress, E.right, TE.fromEither);
 
 export const getProductPrice: GetProductPrice = productCode => Price.unsafeCreate(1); // dummy implementation
 
@@ -86,7 +87,7 @@ export const placeOrderApi: PlaceOrderApi = (request: HttpRequest) => pipe(
   TE.fromEither,
   TE.flatMap(
     // now we are in the pure domain
-    Implementation.placeOrder(
+    placeOrder(
       // setup the dependencies. See "Injecting Dependencies" in chapter 9
       checkProductExists,
       checkAddressExists,

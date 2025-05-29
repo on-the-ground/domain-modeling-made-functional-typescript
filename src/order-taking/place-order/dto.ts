@@ -13,7 +13,6 @@ import * as RA from 'fp-ts/ReadonlyArray';
 import { pipe } from 'fp-ts/function';
 import { match, P } from 'ts-pattern';
 import { bound } from '../../libs/decorator';
-import * as Common from '../common-types';
 import {
   BillableOrderPlaced,
   OrderAcknowledgmentSent,
@@ -30,6 +29,7 @@ import {
   ValidationError,
 } from './public-types';
 import { ValueObject } from '../../libs/model-type'
+import { Address, CustomerInfo, EmailAddress, PersonalName, String50, ZipCode } from '../common-types';
 
 // ==================================
 // DTOs for PlaceOrder workflow
@@ -60,22 +60,22 @@ export class CustomerInfoDto extends ValueObject {
   /// Convert the DTO into a CustomerInfo object
   /// Used when importing from the outside world into the domain, eg loading from a database
   @bound
-  toDomain(): E.Either<Error, Common.CustomerInfo> {
+  toDomain(): E.Either<Error, CustomerInfo> {
     return pipe(
       E.Do,
       // get each (validated) simple type from the DTO as a success or failure
-      E.bind('first', () => Common.String50.create(this.firstName)),
-      E.bind('last', () => Common.String50.create(this.lastName)),
-      E.bind('email', () => Common.EmailAddress.create(this.emailAddress)),
+      E.bind('first', () => String50.create(this.firstName)),
+      E.bind('last', () => String50.create(this.lastName)),
+      E.bind('email', () => EmailAddress.create(this.emailAddress)),
       // combine the components to create the domain object
-      E.let('name', ({ first, last }) => new Common.PersonalName(first, last)),
-      E.map(scope => new Common.CustomerInfo(scope.name, scope.email)),
+      E.let('name', ({ first, last }) => new PersonalName(first, last)),
+      E.map(scope => new CustomerInfo(scope.name, scope.email)),
     );
   }
 
   /// Convert a CustomerInfo object into the corresponding DTO.
   /// Used when exporting from the domain to the outside world.
-  static fromDomain(domainObj: Common.CustomerInfo): CustomerInfoDto {
+  static fromDomain(domainObj: CustomerInfo): CustomerInfoDto {
     // this is a simple 1:1 copy
     return new CustomerInfoDto(
       domainObj.name.firstName.value,
@@ -118,19 +118,19 @@ export class AddressDto extends ValueObject {
   /// Convert the DTO into a Address object
   /// Used when importing from the outside world into the domain, eg loading from a database.
   @bound
-  toDomain(): E.Either<Error, Common.Address> {
+  toDomain(): E.Either<Error, Address> {
     const optEthToEthOpt: <E, T>(i: O.Option<E.Either<E, T>>) => E.Either<E, O.Option<T>> = O.match(() => E.right(O.none), E.map(O.some));
     return pipe(
       E.Do,
       // get each (validated) simple type from the DTO as a success or failure
-      E.bind('addressLine1', () => Common.String50.create(this.addressLine1)),
-      E.bind('addressLine2', () => pipe(this.addressLine2, O.map(Common.String50.create), optEthToEthOpt)),
-      E.bind('addressLine3', () => pipe(this.addressLine3, O.map(Common.String50.create), optEthToEthOpt)),
-      E.bind('addressLine4', () => pipe(this.addressLine4, O.map(Common.String50.create), optEthToEthOpt)),
-      E.bind('city', () => Common.String50.create(this.city)),
-      E.bind('zipCode', () => Common.ZipCode.create(this.zipCode)),
+      E.bind('addressLine1', () => String50.create(this.addressLine1)),
+      E.bind('addressLine2', () => pipe(this.addressLine2, O.map(String50.create), optEthToEthOpt)),
+      E.bind('addressLine3', () => pipe(this.addressLine3, O.map(String50.create), optEthToEthOpt)),
+      E.bind('addressLine4', () => pipe(this.addressLine4, O.map(String50.create), optEthToEthOpt)),
+      E.bind('city', () => String50.create(this.city)),
+      E.bind('zipCode', () => ZipCode.create(this.zipCode)),
       // combine the components to create the domain object
-      E.map(scope => new Common.Address(
+      E.map(scope => new Address(
         scope.addressLine1,
         scope.addressLine2,
         scope.addressLine3,
@@ -143,7 +143,7 @@ export class AddressDto extends ValueObject {
 
   /// Convert a Address object into the corresponding DTO.
   /// Used when exporting from the domain to the outside world.
-  static fromDomain(domainObj: Common.Address): AddressDto {
+  static fromDomain(domainObj: Address): AddressDto {
     // this is a simple 1:1 copy
     return new AddressDto(
       domainObj.addressLine1.value,
