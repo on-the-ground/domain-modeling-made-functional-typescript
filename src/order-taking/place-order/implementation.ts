@@ -4,16 +4,31 @@ import { flow, pipe } from 'fp-ts/function';
 import * as O from 'fp-ts/Option';
 import * as TE from 'fp-ts/TaskEither';
 import { match, P } from 'ts-pattern';
-import * as Common from '../common-types';
 import { placeOrderEvents } from './implementation.common';
-import { ValidatedOrder, ValidatedOrderLine } from './implementation.types';
+import { AddressNotFound, InvalidFormat, ValidatedOrder, ValidatedOrderLine } from './implementation.types';
 import { PricedOrder, PricedOrderLine, PricingError, ValidationError } from './public-types';
+import {
+  Address,
+  BillingAmount,
+  createOrderQuantity,
+  createProductCode,
+  CustomerInfo,
+  EmailAddress,
+  OrderId,
+  OrderLineId,
+  PersonalName,
+  ProductCode,
+  String50,
+  ZipCode,
+} from '../common-types';
 
 import type {
+  CheckAddressExists,
   CheckedAddress,
   CheckProductCodeExists,
   CreateOrderAcknowledgmentLetter,
   GetProductPrice,
+  PriceOrder,
   SendOrderAcknowledgment,
 } from './implementation.types';
 import type {
@@ -23,6 +38,7 @@ import type {
   UnvalidatedOrder,
   UnvalidatedOrderLine,
 } from './public-types';
+
 
 // ======================================================
 // This file contains the final implementation for the PlaceOrder workflow
@@ -43,19 +59,6 @@ import type {
 // Validation step
 // ---------------------------
 
-// Product validation
-
-class InvalidFormat {
-  constructor(readonly message: string) { }
-}
-class AddressNotFound {
-  constructor(readonly message: string) { }
-}
-
-// Address validation
-type AddressValidationError = InvalidFormat | AddressNotFound;
-
-export type CheckAddressExists = (i: UnvalidatedAddress) => TE.TaskEither<AddressValidationError, CheckedAddress>;
 
 // ---------------------------
 // Validated Order
@@ -74,8 +77,6 @@ type ValidateOrder = (
 
 // priced state is defined Domain.WorkflowTypes
 
-export type PriceOrder = (dep: GetProductPrice) => (i: ValidatedOrder) => E.Either<PricingError, PricedOrder>; // output
-
 // ======================================================
 // Section 2 : Implementation
 // ======================================================
@@ -86,39 +87,39 @@ export type PriceOrder = (dep: GetProductPrice) => (i: ValidatedOrder) => E.Eith
 
 const toCustomerInfo = (
   unvalidatedCustomerInfo: UnvalidatedCustomerInfo,
-): E.Either<ValidationError, Common.CustomerInfo> => pipe(
+): E.Either<ValidationError, CustomerInfo> => pipe(
   E.Do,
   E.bind('firstName', () =>
-    pipe(unvalidatedCustomerInfo.firstName, Common.String50.create, E.mapLeft(ValidationError.from)),
+    pipe(unvalidatedCustomerInfo.firstName, String50.create, E.mapLeft(ValidationError.from)),
   ),
   E.bind('lastName', () =>
-    pipe(unvalidatedCustomerInfo.lastName, Common.String50.create, E.mapLeft(ValidationError.from)),
+    pipe(unvalidatedCustomerInfo.lastName, String50.create, E.mapLeft(ValidationError.from)),
   ),
   E.bind('emailAddress', () =>
-    pipe(unvalidatedCustomerInfo.emailAddress, Common.EmailAddress.create, E.mapLeft(ValidationError.from)),
+    pipe(unvalidatedCustomerInfo.emailAddress, EmailAddress.create, E.mapLeft(ValidationError.from)),
   ),
-  E.let('name', ({ firstName, lastName }) => new Common.PersonalName(firstName, lastName)),
-  E.map(scope => new Common.CustomerInfo(scope.name, scope.emailAddress)),
+  E.let('name', ({ firstName, lastName }) => new PersonalName(firstName, lastName)),
+  E.map(scope => new CustomerInfo(scope.name, scope.emailAddress)),
 );
 
 const optEthToEthOpt: <E, T>(i: O.Option<E.Either<E, T>>) => E.Either<E, O.Option<T>> = O.match(() => E.right(O.none), E.map(O.some));
-const toAddress = (checkedAddress: CheckedAddress): E.Either<ValidationError, Common.Address> => pipe(
+const toAddress = (checkedAddress: CheckedAddress): E.Either<ValidationError, Address> => pipe(
   E.Do,
   E.bind('addressLine1', () =>
-    pipe(checkedAddress.addressLine1, Common.String50.create, E.mapLeft(ValidationError.from)),
+    pipe(checkedAddress.addressLine1, String50.create, E.mapLeft(ValidationError.from)),
   ),
   E.bind('addressLine2', () =>
-    pipe(checkedAddress.addressLine2, O.map(flow(Common.String50.create, E.mapLeft(ValidationError.from))), optEthToEthOpt),
+    pipe(checkedAddress.addressLine2, O.map(flow(String50.create, E.mapLeft(ValidationError.from))), optEthToEthOpt),
   ),
   E.bind('addressLine3', () =>
-    pipe(checkedAddress.addressLine3, O.map(flow(Common.String50.create, E.mapLeft(ValidationError.from))), optEthToEthOpt),
+    pipe(checkedAddress.addressLine3, O.map(flow(String50.create, E.mapLeft(ValidationError.from))), optEthToEthOpt),
   ),
   E.bind('addressLine4', () =>
-    pipe(checkedAddress.addressLine4, O.map(flow(Common.String50.create, E.mapLeft(ValidationError.from))), optEthToEthOpt),
+    pipe(checkedAddress.addressLine4, O.map(flow(String50.create, E.mapLeft(ValidationError.from))), optEthToEthOpt),
   ),
-  E.bind('city', () => pipe(checkedAddress.city, Common.String50.create, E.mapLeft(ValidationError.from))),
-  E.bind('zipCode', () => pipe(checkedAddress.zipCode, Common.ZipCode.create, E.mapLeft(ValidationError.from))),
-  E.map(scope => new Common.Address(scope.addressLine1, scope.addressLine2, scope.addressLine3, scope.addressLine4, scope.city, scope.zipCode)),
+  E.bind('city', () => pipe(checkedAddress.city, String50.create, E.mapLeft(ValidationError.from))),
+  E.bind('zipCode', () => pipe(checkedAddress.zipCode, ZipCode.create, E.mapLeft(ValidationError.from))),
+  E.map(scope => new Address(scope.addressLine1, scope.addressLine2, scope.addressLine3, scope.addressLine4, scope.city, scope.zipCode)),
 );
 
 /// Call the checkAddressExists and convert the error to a ValidationError
@@ -134,14 +135,14 @@ const toCheckedAddress = (
   ),
 );
 
-const toOrderId: (orderId: string) => E.Either<ValidationError, Common.OrderId> = flow(
-  Common.OrderId.create,
+const toOrderId: (orderId: string) => E.Either<ValidationError, OrderId> = flow(
+  OrderId.create,
   E.mapLeft(ValidationError.from), // convert creation error into ValidationError
 );
 
 /// Helper function for validateOrder
-const toOrderLineId: (orderLineId: string) => E.Either<ValidationError, Common.OrderLineId> = flow(
-  Common.OrderLineId.create,
+const toOrderLineId: (orderLineId: string) => E.Either<ValidationError, OrderLineId> = flow(
+  OrderLineId.create,
   E.mapLeft(ValidationError.from),
 );
 
@@ -149,22 +150,22 @@ const toOrderLineId: (orderLineId: string) => E.Either<ValidationError, Common.O
 const toProductCode = (checkProductCodeExists: CheckProductCodeExists) => {
   // create a ProductCode => Result<ProductCode,...> function
   // suitable for using in a pipeline
-  const checkProduct = (productCode: Common.ProductCode) =>
+  const checkProduct = (productCode: ProductCode) =>
     checkProductCodeExists(productCode)
       ? E.right(productCode)
       : E.left(new ValidationError(`Invalid: ${productCode.value}`));
 
   // assemble the pipeline
   return flow(
-    Common.createProductCode,
+    createProductCode,
     E.mapLeft(ValidationError.from),
     E.flatMap(checkProduct),
   );
 };
 
 /// Helper function for validateOrder1
-const toOrderQuantity = (productCode: Common.ProductCode) => flow(
-  Common.createOrderQuantity(productCode),
+const toOrderQuantity = (productCode: ProductCode) => flow(
+  createOrderQuantity(productCode),
   E.mapLeft(ValidationError.from),
 );
 
@@ -235,7 +236,7 @@ const priceOrder: PriceOrder = (getProductPrice) => ({
   E.bind('amountToBill', ({ pricedLines }) => pipe(
     pricedLines,
     A.map(l => l.linePrice), // get each line price
-    Common.BillingAmount.sumPrices, // add them together as a BillingAmount
+    BillingAmount.sumPrices, // add them together as a BillingAmount
     E.mapLeft(PricingError.from), // convert to PlaceOrderError
   )),
   E.map(scope => new PricedOrder(

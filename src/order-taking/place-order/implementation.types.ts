@@ -4,7 +4,9 @@ import { bound } from '../../libs/decorator';
 import { Entity, ValueObject } from '../../libs/model-type';
 
 import type * as Common from '../common-types';
-import type { OrderAcknowledgmentSent, PlaceOrderEvent, PricedOrder, UnvalidatedAddress } from './public-types';
+import type { OrderAcknowledgmentSent, PlaceOrderEvent, PricedOrder, UnvalidatedAddress, PricingError } from './public-types';
+import type * as TE from 'fp-ts/TaskEither'
+import type * as E from 'fp-ts/Either'
 
 // ======================================================
 // Section 1 : Define each step in the workflow using types
@@ -16,12 +18,25 @@ import type { OrderAcknowledgmentSent, PlaceOrderEvent, PricedOrder, Unvalidated
 
 // Product validation
 
+export class InvalidFormat {
+  constructor(readonly message: string) { }
+}
+export class AddressNotFound {
+  constructor(readonly message: string) { }
+}
+
+// Address validation
+export type AddressValidationError = InvalidFormat | AddressNotFound;
+// Product validation
+
 export type CheckProductCodeExists = (i: Common.ProductCode) => boolean;
 
 // Address validation
 declare const checkedAddress: unique symbol;
 export type CheckedAddress = PhantomBrand<UnvalidatedAddress, typeof checkedAddress>;
 export const createCheckedAddress = (i: UnvalidatedAddress) => i as CheckedAddress;
+
+export type CheckAddressExists = (i: UnvalidatedAddress) => TE.TaskEither<AddressValidationError, CheckedAddress>;
 
 // ---------------------------
 // Validated Order
@@ -72,6 +87,8 @@ export class ValidatedOrder extends Entity {
 // ---------------------------
 
 export type GetProductPrice = (i: Common.ProductCode) => Common.Price;
+
+export type PriceOrder = (dep: GetProductPrice) => (i: ValidatedOrder) => E.Either<PricingError, PricedOrder>; // output
 
 // ---------------------------
 // Send OrderAcknowledgment
