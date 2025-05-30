@@ -3,10 +3,10 @@ import { PhantomBrand, Wrapper } from '../../libs/brand';
 import { bound } from '../../libs/decorator';
 import { Entity, ValueObject } from '../../libs/model-type';
 
-import type * as Common from '../common-types';
 import type { OrderAcknowledgmentSent, PlaceOrderEvent, PricedOrder, UnvalidatedAddress, PricingError } from './public-types';
 import type * as TE from 'fp-ts/TaskEither'
 import type * as E from 'fp-ts/Either'
+import type { Address, CustomerInfo, EmailAddress, OrderId, OrderLineId, OrderQuantity, Price, ProductCode } from '../common-types';
 
 // ======================================================
 // Section 1 : Define each step in the workflow using types
@@ -29,7 +29,7 @@ export class AddressNotFound {
 export type AddressValidationError = InvalidFormat | AddressNotFound;
 // Product validation
 
-export type CheckProductCodeExists = (i: Common.ProductCode) => boolean;
+export type CheckProductCodeExists = (i: ProductCode) => boolean;
 
 // Address validation
 declare const checkedAddress: unique symbol;
@@ -42,11 +42,11 @@ export type CheckAddressExists = (i: UnvalidatedAddress) => TE.TaskEither<Addres
 // Validated Order
 // ---------------------------
 
-export class ValidatedOrderLine extends Entity {
+export class ValidatedOrderLine extends Entity<OrderLineId> {
   constructor(
-    readonly orderLineId: Common.OrderLineId,
-    readonly productCode: Common.ProductCode,
-    readonly quantity: Common.OrderQuantity,
+    readonly orderLineId: OrderLineId,
+    readonly productCode: ProductCode,
+    readonly quantity: OrderQuantity,
   ) {
     super();
   }
@@ -56,17 +56,17 @@ export class ValidatedOrderLine extends Entity {
   }
 
   @bound
-  get id(): Common.OrderLineId {
+  get id(): OrderLineId {
     return this.orderLineId;
   }
 }
 
-export class ValidatedOrder extends Entity {
+export class ValidatedOrder extends Entity<OrderId> {
   constructor(
-    readonly orderId: Common.OrderId,
-    readonly customerInfo: Common.CustomerInfo,
-    readonly shippingAddress: Common.Address,
-    readonly billingAddress: Common.Address,
+    readonly orderId: OrderId,
+    readonly customerInfo: CustomerInfo,
+    readonly shippingAddress: Address,
+    readonly billingAddress: Address,
     readonly lines: readonly ValidatedOrderLine[],
   ) {
     super();
@@ -77,7 +77,7 @@ export class ValidatedOrder extends Entity {
   }
 
   @bound
-  get id(): Common.OrderId {
+  get id(): OrderId {
     return this.orderId;
   }
 }
@@ -86,7 +86,7 @@ export class ValidatedOrder extends Entity {
 // Pricing step
 // ---------------------------
 
-export type GetProductPrice = (i: Common.ProductCode) => Common.Price;
+export type GetProductPrice = (i: ProductCode) => Price;
 
 export type PriceOrder = (dep: GetProductPrice) => (i: ValidatedOrder) => E.Either<PricingError, PricedOrder>; // output
 
@@ -102,7 +102,7 @@ export class HtmlString implements Wrapper<string, typeof htmlString> {
 
 export class OrderAcknowledgement extends ValueObject {
   constructor(
-    readonly emailAddress: Common.EmailAddress,
+    readonly emailAddress: EmailAddress,
     readonly letter: HtmlString,
   ) { super() }
 }

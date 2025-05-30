@@ -1,12 +1,13 @@
 import { deepStrictEqual } from 'assert';
 import { bound } from '../libs/decorator';
 
-interface Equatable {
+export interface Equatable {
   equals(obj: unknown): boolean;
 }
 
 export abstract class ValueObject implements Equatable {
   equals(obj: unknown): boolean {
+    if (obj == null || typeof obj !== 'object') return false;
     try {
       deepStrictEqual(this, obj);
       return true;
@@ -18,15 +19,17 @@ export abstract class ValueObject implements Equatable {
 
 type RawId = string | number | bigint;
 
-export abstract class Entity implements Equatable {
-  abstract readonly id: RawId | ValueObject;
-  protected abstract isSameClass<T extends Entity>(obj: unknown): obj is T;
+export abstract class Entity<ID extends RawId | ValueObject> implements Equatable {
+  abstract readonly id: ID;
+  protected abstract isSameClass<T extends Entity<ID>>(obj: unknown): obj is T;
 
   @bound
   equals(obj: unknown): boolean {
     if (!this.isSameClass(obj)) return false;
-    return (this.id instanceof ValueObject)
-      ? this.id.equals(obj.id)
-      : this.id === obj.id;
+    const otherId = (obj as Entity<ID>).id;
+
+    return this.id instanceof ValueObject
+      ? this.id.equals(otherId)
+      : this.id === otherId;
   }
 }
