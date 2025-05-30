@@ -7,7 +7,18 @@ import { TaskEither } from 'fp-ts/TaskEither';
 import { bound } from '../../libs/decorator';
 import { Entity, ValueObject } from '../../libs/model-type';
 
-import type * as Common from '../common-types';
+import type {
+  Address,
+  BillingAmount,
+  CustomerInfo,
+  EmailAddress,
+  OrderId,
+  OrderLineId,
+  OrderQuantity,
+  Price,
+  ProductCode,
+} from '../common-types';
+
 // ==================================
 // This file contains the definitions of PUBLIC types (exposed at the boundary of the bounded context)
 // related to the PlaceOrder workflow
@@ -59,18 +70,18 @@ export class UnvalidatedOrder extends ValueObject {
 /// Event will be created if the Acknowledgment was successfully posted
 export class OrderAcknowledgmentSent extends ValueObject {
   constructor(
-    readonly orderId: Common.OrderId,
-    readonly emailAddress: Common.EmailAddress,
+    readonly orderId: OrderId,
+    readonly emailAddress: EmailAddress,
   ) { super() }
 }
 
 // priced state
-export class PricedOrderLine extends Entity {
+export class PricedOrderLine extends Entity<OrderLineId> {
   constructor(
-    readonly orderLineId: Common.OrderLineId,
-    readonly productCode: Common.ProductCode,
-    readonly quantity: Common.OrderQuantity,
-    readonly linePrice: Common.Price,
+    readonly orderLineId: OrderLineId,
+    readonly productCode: ProductCode,
+    readonly quantity: OrderQuantity,
+    readonly linePrice: Price,
   ) {
     super();
   }
@@ -80,18 +91,18 @@ export class PricedOrderLine extends Entity {
   }
 
   @bound
-  get id(): Common.OrderLineId {
+  get id(): OrderLineId {
     return this.orderLineId;
   }
 }
 
-export class PricedOrder extends Entity {
+export class PricedOrder extends Entity<OrderId> {
   constructor(
-    readonly orderId: Common.OrderId,
-    readonly customerInfo: Common.CustomerInfo,
-    readonly shippingAddress: Common.Address,
-    readonly billingAddress: Common.Address,
-    readonly amountToBill: Common.BillingAmount,
+    readonly orderId: OrderId,
+    readonly customerInfo: CustomerInfo,
+    readonly shippingAddress: Address,
+    readonly billingAddress: Address,
+    readonly amountToBill: BillingAmount,
     readonly lines: readonly PricedOrderLine[],
   ) {
     super();
@@ -102,7 +113,7 @@ export class PricedOrder extends Entity {
   }
 
   @bound
-  get id(): Common.OrderId {
+  get id(): OrderId {
     return this.orderId;
   }
 }
@@ -110,11 +121,11 @@ export class PricedOrder extends Entity {
 /// Event to send to shipping context
 export class OrderPlaced extends ValueObject {
   constructor(
-    readonly orderId: Common.OrderId,
-    readonly customerInfo: Common.CustomerInfo,
-    readonly shippingAddress: Common.Address,
-    readonly billingAddress: Common.Address,
-    readonly amountToBill: Common.BillingAmount,
+    readonly orderId: OrderId,
+    readonly customerInfo: CustomerInfo,
+    readonly shippingAddress: Address,
+    readonly billingAddress: Address,
+    readonly amountToBill: BillingAmount,
     readonly lines: readonly PricedOrderLine[],
   ) { super() }
 }
@@ -123,9 +134,9 @@ export class OrderPlaced extends ValueObject {
 /// Will only be created if the AmountToBill is not zero
 export class BillableOrderPlaced extends ValueObject {
   constructor(
-    readonly orderId: Common.OrderId,
-    readonly billingAddress: Common.Address,
-    readonly amountToBill: Common.BillingAmount,
+    readonly orderId: OrderId,
+    readonly billingAddress: Address,
+    readonly amountToBill: BillingAmount,
   ) { super() }
 }
 
