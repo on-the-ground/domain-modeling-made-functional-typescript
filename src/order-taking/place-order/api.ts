@@ -30,13 +30,11 @@ namespace Json {
   export const serialize = JSON.stringify
 
   // This function deserialize a json string into a domain object
-  export const deserialize = <T extends object>(cls: { prototype: T }) => E.tryCatchK(
+  export const deserialize = <T extends object>(cls: { prototype: T }) =>
     flow(
       JSON.parse,
       obj => Object.setPrototypeOf(obj, cls.prototype) as T,
-    ),
-    e => e,
-  )
+    )
 }
 
 /// Very simplified version!
@@ -83,8 +81,8 @@ export const sendOrderAcknowledgment: SendOrderAcknowledgment = orderAcknowledge
 export const placeOrderApi: PlaceOrderApi = (request: HttpRequest) => pipe(
   request.body,             // orderFormJson
   Json.deserialize(OrderFormDto), // following the approach in "A Complete Serialization Pipeline" in chapter 11
-  E.map((orderForm) => orderForm.toUnvalidatedOrder()), // convert to domain object
-  TE.fromEither,
+  (orderForm) => orderForm.toUnvalidatedOrder(), // convert to domain object
+  TE.of,
   TE.flatMap(
     // now we are in the pure domain
     placeOrder(
