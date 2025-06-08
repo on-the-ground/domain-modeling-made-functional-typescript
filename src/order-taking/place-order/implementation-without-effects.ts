@@ -45,7 +45,7 @@ type PlaceOrderWithoutEffects = (i: UnvalidatedOrder) => PlaceOrderEvent[];
 // ======================================================
 
 // helper to convert Results into exceptions so we can reuse the smart constructors in Simpconstypes.
-const failOnError: <T>(aResult: E.Either<Error, T>) => T = E.getOrElse((e) => {
+const failOnError: <T, E>(aResult: E.Either<E, T>) => T = E.getOrElse((e) => {
   throw e;
 });
 

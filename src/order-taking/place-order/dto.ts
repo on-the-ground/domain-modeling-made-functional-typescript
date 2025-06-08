@@ -30,6 +30,7 @@ import {
 } from './public-types';
 import { ValueObject } from '../../libs/model-type'
 import { Address, CustomerInfo, EmailAddress, PersonalName, String50, ZipCode } from '../common-types';
+import { ErrPrimitiveConstraints } from '../common-types/constrained-type';
 
 // ==================================
 // DTOs for PlaceOrder workflow
@@ -60,7 +61,7 @@ export class CustomerInfoDto extends ValueObject {
   /// Convert the DTO into a CustomerInfo object
   /// Used when importing from the outside world into the domain, eg loading from a database
   @bound
-  toDomain(): E.Either<Error, CustomerInfo> {
+  toDomain(): E.Either<ErrPrimitiveConstraints, CustomerInfo> {
     return pipe(
       E.Do,
       // get each (validated) simple type from the DTO as a success or failure
@@ -118,7 +119,7 @@ export class AddressDto extends ValueObject {
   /// Convert the DTO into a Address object
   /// Used when importing from the outside world into the domain, eg loading from a database.
   @bound
-  toDomain(): E.Either<Error, Address> {
+  toDomain(): E.Either<ErrPrimitiveConstraints, Address> {
     const optEthToEthOpt: <E, T>(i: O.Option<E.Either<E, T>>) => E.Either<E, O.Option<T>> = O.match(() => E.right(O.none), E.map(O.some));
     return pipe(
       E.Do,
